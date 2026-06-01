@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bukuri Booking Kosovo</title>
+    <meta name="description" content="Book beauty and wellness appointments in Kosovo.">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Bukuri home">
+        <span class="brand-mark">B</span>
+        <span>
+          <strong>Bukuri</strong>
+          <small>Beauty booking</small>
+        </span>
+      </a>
+      <nav class="nav-actions" aria-label="Main navigation">
+        <button class="icon-button" type="button" data-view="browse" aria-label="Browse salons" title="Browse">
+          <span aria-hidden="true">&#128269;</span>
+        </button>
+        <button class="icon-button" type="button" data-view="admin" aria-label="Open admin" title="Admin">
+          <span aria-hidden="true">&#9776;</span>
+        </button>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="search-panel" aria-labelledby="page-title">
+        <div class="search-copy">
+          <p class="kicker">Prishtina MVP</p>
+          <h1 id="page-title">Book beauty and wellness appointments near you.</h1>
+          <p>Find barbers, nails, hair, skincare, lashes, and massage services with clear prices and quick booking requests.</p>
+        </div>
+
+        <form class="search-box" id="searchForm">
+          <label for="searchInput">Search</label>
+          <div class="search-row">
+            <input id="searchInput" type="search" placeholder="Salon, service, or area">
+            <select id="cityFilter" aria-label="City">
+              <option value="all">All cities</option>
+              <option value="Prishtina">Prishtina</option>
+              <option value="Prizren">Prizren</option>
+              <option value="Peja">Peja</option>
+            </select>
+          </div>
+          <div class="category-tabs" id="categoryTabs" aria-label="Service categories"></div>
+        </form>
+      </section>
+
+      <section class="stats-band" aria-label="Marketplace stats">
+        <div>
+          <strong id="salonCount">0</strong>
+          <span>salons</span>
+        </div>
+        <div>
+          <strong id="serviceCount">0</strong>
+          <span>services</span>
+        </div>
+        <div>
+          <strong>1 min</strong>
+          <span>request</span>
+        </div>
+      </section>
+
+      <section class="app-layout" data-current-view="browse">
+        <aside class="filters" aria-label="Filters">
+          <div class="filter-head">
+            <h2>Filters</h2>
+            <button class="text-button" type="button" id="resetFilters">Reset</button>
+          </div>
+          <label>
+            Sort by
+            <select id="sortFilter">
+              <option value="recommended">Recommended</option>
+              <option value="rating">Highest rated</option>
+              <option value="price">Lowest starting price</option>
+              <option value="response">Fastest response</option>
+            </select>
+          </label>
+          <label class="toggle-row">
+            <input type="checkbox" id="openTodayFilter">
+            <span>Open today</span>
+          </label>
+          <label class="toggle-row">
+            <input type="checkbox" id="verifiedFilter">
+            <span>Verified only</span>
+          </label>
+        </aside>
+
+        <section class="browse-view" aria-labelledby="salons-title">
+          <div class="section-heading">
+            <div>
+              <p class="kicker">Browse</p>
+              <h2 id="salons-title">Available salons</h2>
+            </div>
+            <span id="resultCount" class="result-count"></span>
+          </div>
+          <div class="salon-grid" id="salonGrid"></div>
+          <p class="empty-state" id="emptyState" hidden>No salons found. Try a different search or category.</p>
+        </section>
+
+        <section class="admin-view" aria-labelledby="admin-title">
+          <div class="section-heading">
+            <div>
+              <p class="kicker">Operator</p>
+              <h2 id="admin-title">Booking requests</h2>
+            </div>
+          </div>
+          <div class="admin-grid">
+            <form class="admin-card" id="quickSalonForm">
+              <h3>Add a salon lead</h3>
+              <label>
+                Salon name
+                <input required name="name" placeholder="Example Beauty Studio">
+              </label>
+              <label>
+                Phone or Instagram
+                <input required name="contact" placeholder="+383... or @salon">
+              </label>
+              <label>
+                Category
+                <select name="category">
+                  <option>Hair</option>
+                  <option>Barber</option>
+                  <option>Nails</option>
+                  <option>Skincare</option>
+                  <option>Massage</option>
+                </select>
+              </label>
+              <button class="primary-button" type="submit">Save lead</button>
+            </form>
+            <div class="admin-card">
+              <h3>Requests</h3>
+              <div class="request-list" id="requestList"></div>
+            </div>
+            <div class="admin-card">
+              <h3>Salon leads</h3>
+              <div class="request-list" id="leadList"></div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <dialog class="profile-dialog" id="profileDialog">
+      <button class="close-button" type="button" id="closeProfile" aria-label="Close">&times;</button>
+      <div id="profileContent"></div>
+    </dialog>
+
+    <dialog class="booking-dialog" id="bookingDialog">
+      <button class="close-button" type="button" id="closeBooking" aria-label="Close">&times;</button>
+      <form class="booking-form" id="bookingForm">
+        <div>
+          <p class="kicker">Booking request</p>
+          <h2 id="bookingTitle">Request appointment</h2>
+          <p id="bookingSubtitle"></p>
+        </div>
+        <input type="hidden" name="salonId">
+        <label>
+          Your name
+          <input required name="customerName" autocomplete="name" placeholder="Full name">
+        </label>
+        <label>
+          Phone number
+          <input required name="phone" autocomplete="tel" placeholder="+383 44 000 000">
+        </label>
+        <label>
+          Service
+          <select required name="service"></select>
+        </label>
+        <div class="form-row">
+          <label>
+            Date
+            <input required name="date" type="date">
+          </label>
+          <label>
+            Time
+            <input required name="time" type="time">
+          </label>
+        </div>
+        <label>
+          Notes
+          <textarea name="notes" rows="3" placeholder="Optional"></textarea>
+        </label>
+        <button class="primary-button" type="submit">Send request</button>
+        <p class="form-note">The salon confirms manually. This is the safest MVP flow.</p>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
