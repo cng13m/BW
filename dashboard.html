@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="sq">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard - Bukuri</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Faqja kryesore Bukuri">
+        <span class="brand-mark">B</span>
+        <span>
+          <strong>Bukuri</strong>
+          <small id="dashboardSalonName">Dashboard</small>
+        </span>
+      </a>
+      <nav class="nav-actions" aria-label="Navigimi kryesor">
+        <a class="secondary-button nav-link" href="index.html">Faqja</a>
+        <button class="icon-button" type="button" id="logoutButton" aria-label="Dil" title="Dil">&#8618;</button>
+      </nav>
+    </header>
+
+    <main class="dashboard-page">
+      <section class="section-heading dashboard-head">
+        <div>
+          <p class="kicker">Salloni</p>
+          <h1 id="dashboardTitle">Dashboard</h1>
+          <p class="meta-line" id="dashboardMeta">Duke u ngarkuar...</p>
+        </div>
+      </section>
+
+      <section class="admin-grid dashboard-grid">
+        <form class="admin-card" id="serviceForm">
+          <h3>Shto sherbim</h3>
+          <label>
+            Emri i sherbimit
+            <input required name="name" placeholder="Ngjyrosje flokesh">
+          </label>
+          <div class="form-row">
+            <label>
+              Cmimi EUR
+              <input required name="price" type="number" min="0" step="0.5" placeholder="35">
+            </label>
+            <label>
+              Minuta
+              <input required name="duration" type="number" min="5" step="5" placeholder="60">
+            </label>
+          </div>
+          <button class="primary-button" type="submit">Ruaj sherbimin</button>
+        </form>
+
+        <div class="admin-card">
+          <h3>Sherbimet</h3>
+          <div class="request-list" id="dashboardServices"></div>
+        </div>
+
+        <div class="admin-card">
+          <h3>Kerkesat per rezervim</h3>
+          <div class="request-list" id="dashboardBookings"></div>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="dashboard.js"></script>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="sq">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kycu - Bukuri</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Faqja kryesore Bukuri">
+        <span class="brand-mark">B</span>
+        <span>
+          <strong>Bukuri</strong>
+          <small>Dashboard salloni</small>
+        </span>
+      </a>
+      <nav class="nav-actions" aria-label="Navigimi kryesor">
+        <a class="secondary-button nav-link" href="signup.html">Regjistrohu</a>
+      </nav>
+    </header>
+
+    <main class="auth-page compact-auth">
+      <section class="auth-copy">
+        <p class="kicker">Dashboard</p>
+        <h1>Kycu ne llogarine e sallonit.</h1>
+        <p>Menaxho sherbimet, cmimet dhe kerkesat per rezervim.</p>
+      </section>
+
+      <form class="auth-card" id="loginForm">
+        <h2>Kycu</h2>
+        <label>
+          Email
+          <input required name="email" type="email" autocomplete="email">
+        </label>
+        <label>
+          Fjalekalimi
+          <input required name="password" type="password" autocomplete="current-password">
+        </label>
+        <button class="primary-button" type="submit">Kycu</button>
+        <p class="form-note">Nuk ke llogari? <a href="signup.html">Regjistro sallonin</a>.</p>
+      </form>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="login.js"></script>
+  </body>
+</html>
