@@ -90,7 +90,7 @@ let salons = [
     name: "Mira Wellness Massage",
     category: "Massage",
     city: "Prizren",
-    area: "Center",
+    area: "Qender",
     rating: 4.6,
     reviews: 52,
     verified: false,
@@ -177,6 +177,54 @@ function euro(value) {
   return `${value} EUR`;
 }
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
+}
+
+function setButtonLoading(button, isLoading, loadingText) {
+  if (!button) return;
+  if (isLoading) {
+    button.dataset.originalText = button.textContent;
+    button.textContent = loadingText;
+    button.disabled = true;
+    return;
+  }
+  button.textContent = button.dataset.originalText || button.textContent;
+  button.disabled = false;
+}
+
+function statusLabel(status) {
+  const labels = {
+    pending: "Ne pritje",
+    confirmed: "Konfirmuar",
+    rejected: "Refuzuar",
+    completed: "Perfunduar"
+  };
+  return labels[status] || "Ne pritje";
+}
+
+function storedRequests() {
+  const requests = storage.get("bwRequests", []);
+  let changed = false;
+  const normalizedRequests = requests.map((request) => {
+    if (request.id) return request;
+    changed = true;
+    return {
+      ...request,
+      id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+      status: request.status || "pending"
+    };
+  });
+  if (changed) storage.set("bwRequests", normalizedRequests);
+  return normalizedRequests;
+}
+
 function normalizeSalon(row, index) {
   const services = Array.isArray(row.services) ? row.services : [];
   const description = `${row.description ?? ""} ${row.name ?? ""}`.toLowerCase();
@@ -259,7 +307,7 @@ function renderSalons() {
   elements.emptyState.hidden = results.length !== 0;
   elements.salonGrid.innerHTML = results.map((salon) => `
     <article class="salon-card">
-      <div class="salon-media" style="background-image: url('${salon.image}')">
+      <div class="salon-media" style="background-image: url('${escapeHtml(salon.image)}')">
         <div class="badge-row">
           ${salon.verified ? '<span class="badge">Verifikuar</span>' : ""}
           <span class="badge">${salon.openToday ? "Hapur sot" : "Mbyllur sot"}</span>
@@ -268,18 +316,18 @@ function renderSalons() {
       <div class="salon-body">
         <div class="salon-title-row">
           <div>
-            <h3>${salon.name}</h3>
-            <div class="meta-line">${categoryLabels[salon.category] || salon.category} &middot; ${salon.area}, ${salon.city}</div>
+            <h3>${escapeHtml(salon.name)}</h3>
+            <div class="meta-line">${escapeHtml(categoryLabels[salon.category] || salon.category)} &middot; ${escapeHtml(salon.area)}, ${escapeHtml(salon.city)}</div>
           </div>
           <div class="rating">&#9733; ${salon.rating}</div>
         </div>
         <div class="meta-line">${salon.services.length ? `Prej ${euro(minimumPrice(salon))}` : "Sherbimet po shtohen"} &middot; pergjigjet per ${salon.responseMinutes} min</div>
         <div class="service-pills">
-          ${salon.services.length ? salon.services.slice(0, 3).map((service) => `<span>${service.name}</span>`).join("") : "<span>Ende pa sherbime</span>"}
+          ${salon.services.length ? salon.services.slice(0, 3).map((service) => `<span>${escapeHtml(service.name)}</span>`).join("") : "<span>Ende pa sherbime</span>"}
         </div>
         <div class="card-actions">
-          <button class="secondary-button" type="button" data-profile="${salon.id}">Shiko profilin</button>
-          <button class="primary-button" type="button" data-book="${salon.id}">Rezervo</button>
+          <button class="secondary-button" type="button" data-profile="${escapeHtml(salon.id)}">Shiko profilin</button>
+          <button class="primary-button" type="button" data-book="${escapeHtml(salon.id)}">Rezervo</button>
         </div>
       </div>
     </article>
@@ -296,25 +344,25 @@ function openProfile(salonId) {
   if (!salon) return;
 
   elements.profileContent.innerHTML = `
-    <div class="profile-hero" style="background-image: url('${salon.image}')"></div>
+    <div class="profile-hero" style="background-image: url('${escapeHtml(salon.image)}')"></div>
     <div class="profile-body">
       <div>
         <p class="kicker">${categoryLabels[salon.category] || salon.category}</p>
-        <h2>${salon.name}</h2>
-        <p class="profile-meta">${salon.area}, ${salon.city} &middot; &#9733; ${salon.rating} nga ${salon.reviews} vleresime &middot; ${salon.verified ? "Verifikuar" : "Profil i ri"}</p>
+        <h2>${escapeHtml(salon.name)}</h2>
+        <p class="profile-meta">${escapeHtml(salon.area)}, ${escapeHtml(salon.city)} &middot; &#9733; ${salon.rating} nga ${salon.reviews} vleresime &middot; ${salon.verified ? "Verifikuar" : "Profil i ri"}</p>
       </div>
       <div>
         <h3>Sherbimet</h3>
         <div class="service-list">
           ${salon.services.map((service) => `
             <div class="service-row">
-              <span>${service.name}<br><small>${service.duration}</small></span>
+              <span>${escapeHtml(service.name)}<br><small>${escapeHtml(service.duration)}</small></span>
               <strong>${euro(service.price)}</strong>
             </div>
           `).join("")}
         </div>
       </div>
-      <button class="primary-button" type="button" data-book="${salon.id}">Kerko termin</button>
+      <button class="primary-button" type="button" data-book="${escapeHtml(salon.id)}">Kerko termin</button>
     </div>
   `;
   elements.profileDialog.showModal();
@@ -329,7 +377,7 @@ function openBooking(salonId) {
   elements.bookingTitle.textContent = `Rezervo te ${salon.name}`;
   elements.bookingSubtitle.textContent = `${salon.area}, ${salon.city} - pergjigjet per rreth ${salon.responseMinutes} minuta`;
   elements.bookingForm.elements.service.innerHTML = salon.services.map((service) => `
-    <option value="${service.id || service.name}" data-name="${service.name}">${service.name} - ${euro(service.price)}</option>
+    <option value="${escapeHtml(service.id || service.name)}" data-name="${escapeHtml(service.name)}" data-service-id="${escapeHtml(service.id || "")}">${escapeHtml(service.name)} - ${euro(service.price)}</option>
   `).join("");
 
   const tomorrow = new Date();
@@ -346,18 +394,26 @@ function openBooking(salonId) {
 }
 
 function renderRequests() {
-  const requests = storage.get("bwRequests", []);
+  const requests = storedRequests();
   if (!requests.length) {
-    elements.requestList.innerHTML = '<p class="meta-line">Ende nuk ka kerkesa per rezervim.</p>';
+    elements.requestList.innerHTML = '<p class="meta-line">Ende nuk ka kerkesa per rezervim. Kerkesat test shfaqen ketu pasi klienti dergon formularin.</p>';
     return;
   }
 
   elements.requestList.innerHTML = requests.map((request) => `
-    <div class="request-item">
-      <strong>${request.customerName} - ${request.service}</strong>
-      <small>${request.salonName}</small>
-      <small>${request.date} ne ${request.time} - ${request.phone}</small>
-      ${request.notes ? `<small>${request.notes}</small>` : ""}
+    <div class="request-item" data-request-id="${escapeHtml(request.id)}">
+      <div class="request-topline">
+        <strong>${escapeHtml(request.customerName)} ${escapeHtml(request.customerSurname || "")} - ${escapeHtml(request.service)}</strong>
+        <span class="status-badge status-${escapeHtml(request.status || "pending")}">${statusLabel(request.status)}</span>
+      </div>
+      <small>${escapeHtml(request.salonName)}</small>
+      <small>${escapeHtml(request.date)} ne ${escapeHtml(request.time)} - ${escapeHtml(request.phone)}</small>
+      ${request.notes ? `<small>${escapeHtml(request.notes)}</small>` : ""}
+      <div class="booking-actions">
+        <button class="mini-button confirm" type="button" data-local-status="confirmed" data-request-id="${escapeHtml(request.id)}" ${request.status === "confirmed" || request.status === "completed" ? "disabled" : ""}>Konfirmo</button>
+        <button class="mini-button reject" type="button" data-local-status="rejected" data-request-id="${escapeHtml(request.id)}" ${request.status === "rejected" || request.status === "completed" ? "disabled" : ""}>Refuzo</button>
+        <button class="mini-button complete" type="button" data-local-status="completed" data-request-id="${escapeHtml(request.id)}" ${request.status !== "confirmed" ? "disabled" : ""}>Perfundo</button>
+      </div>
     </div>
   `).join("");
 }
@@ -371,8 +427,8 @@ function renderLeads() {
 
   elements.leadList.innerHTML = leads.map((lead) => `
     <div class="request-item">
-      <strong>${lead.name}</strong>
-      <small>${lead.category} - ${lead.contact}</small>
+      <strong>${escapeHtml(lead.name)}</strong>
+      <small>${escapeHtml(lead.category)} - ${escapeHtml(lead.contact)}</small>
     </div>
   `).join("");
 }
@@ -388,6 +444,21 @@ function setView(view) {
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.view === view);
   });
+}
+
+function setInitialView() {
+  const initialView = window.location.hash === "#admin" ? "admin" : "browse";
+  setView(initialView);
+}
+
+function updateLocalRequestStatus(requestId, status) {
+  const requests = storedRequests();
+  const updatedRequests = requests.map((request) => (
+    request.id === requestId ? { ...request, status, updatedAt: new Date().toISOString() } : request
+  ));
+  storage.set("bwRequests", updatedRequests);
+  renderRequests();
+  showToast(`Kerkesa u perditesua: ${statusLabel(status)}.`);
 }
 
 function bindEvents() {
@@ -464,12 +535,21 @@ function bindEvents() {
 
   elements.bookingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!elements.bookingForm.reportValidity()) return;
     const data = Object.fromEntries(new FormData(elements.bookingForm).entries());
     const salon = salons.find((item) => item.id === data.salonId);
     const serviceSelect = elements.bookingForm.elements.service;
     const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
     const serviceName = selectedOption?.dataset.name || data.service;
-    const serviceId = data.service?.includes("-") ? data.service : null;
+    const serviceId = selectedOption?.dataset.serviceId || null;
+    const submitButton = elements.bookingForm.querySelector("button[type='submit']");
+
+    if (!salon) {
+      showToast("Salloni nuk u gjet. Rifresko faqen dhe provo perseri.");
+      return;
+    }
+
+    setButtonLoading(submitButton, true, "Duke u derguar...");
 
     if (supabaseClient && salon) {
       const { error } = await supabaseClient.from("bookings").insert({
@@ -485,6 +565,7 @@ function bindEvents() {
       });
 
       if (!error) {
+        setButtonLoading(submitButton, false);
         elements.bookingDialog.close();
         showToast("Kerkesa per rezervim u dergua.");
         return;
@@ -496,12 +577,15 @@ function bindEvents() {
 
     const requests = storage.get("bwRequests", []);
     requests.unshift({
+      id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
       ...data,
       salonName: salon.name,
       service: serviceName,
+      status: "pending",
       createdAt: new Date().toISOString()
     });
     storage.set("bwRequests", requests);
+    setButtonLoading(submitButton, false);
     elements.bookingDialog.close();
     renderRequests();
     showToast("Kerkesa per rezervim u ruajt. Shiko Admin per ta pare.");
@@ -509,6 +593,7 @@ function bindEvents() {
 
   elements.quickSalonForm.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (!elements.quickSalonForm.reportValidity()) return;
     const lead = Object.fromEntries(new FormData(elements.quickSalonForm).entries());
     const leads = storage.get("bwLeads", []);
     leads.unshift({ ...lead, createdAt: new Date().toISOString() });
@@ -516,6 +601,12 @@ function bindEvents() {
     elements.quickSalonForm.reset();
     renderLeads();
     showToast("Kontakti i sallonit u ruajt.");
+  });
+
+  elements.requestList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-local-status]");
+    if (!button) return;
+    updateLocalRequestStatus(button.dataset.requestId, button.dataset.localStatus);
   });
 }
 
@@ -545,7 +636,7 @@ async function init() {
   renderSalons();
   renderRequests();
   renderLeads();
-  setView("browse");
+  setInitialView();
   bindEvents();
 }
 

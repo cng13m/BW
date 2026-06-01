@@ -16,7 +16,8 @@
         </span>
       </a>
       <nav class="nav-actions" aria-label="Navigimi kryesor">
-        <a class="secondary-button nav-link" href="index.html">Faqja</a>
+        <a class="secondary-button nav-link" href="index.html">Sallonet</a>
+        <a class="secondary-button nav-link" href="signup.html">Regjistro sallon</a>
         <button class="icon-button" type="button" id="logoutButton" aria-label="Dil" title="Dil">&#8618;</button>
       </nav>
     </header>
@@ -33,6 +34,7 @@
       <section class="admin-grid dashboard-grid">
         <form class="admin-card" id="serviceForm">
           <h3>Shto sherbim</h3>
+          <p class="form-note">Sherbimet shfaqen ne profilin publik dhe perdoren ne formularin e rezervimit.</p>
           <label>
             Emri i sherbimit
             <input required name="name" placeholder="Ngjyrosje flokesh">
@@ -40,11 +42,11 @@
           <div class="form-row">
             <label>
               Cmimi EUR
-              <input required name="price" type="number" min="0" step="0.5" placeholder="35">
+              <input required name="price" type="number" min="0" step="0.5" inputmode="decimal" placeholder="35">
             </label>
             <label>
               Minuta
-              <input required name="duration" type="number" min="5" step="5" placeholder="60">
+              <input required name="duration" type="number" min="5" step="5" inputmode="numeric" placeholder="60">
             </label>
           </div>
           <button class="primary-button" type="submit">Ruaj sherbimin</button>

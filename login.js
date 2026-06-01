@@ -8,12 +8,30 @@ function showToast(message) {
   window.setTimeout(() => toast.classList.remove("is-visible"), 2800);
 }
 
+function setSubmitState(isLoading) {
+  const submitButton = loginForm.querySelector("button[type='submit']");
+  submitButton.disabled = isLoading;
+  submitButton.textContent = isLoading ? "Duke u kycur..." : "Kycu";
+}
+
+function friendlyLoginMessage(message) {
+  if (!message) return "Nuk u krye kycja. Provo perseri.";
+  if (message.toLowerCase().includes("invalid")) return "Emaili ose fjalekalimi nuk eshte i sakte.";
+  if (message.toLowerCase().includes("confirm")) return "Kontrollo emailin dhe konfirmo llogarine para kycjes.";
+  return message;
+}
+
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (!loginForm.reportValidity()) return;
+  if (!supabaseClient) {
+    showToast("Supabase nuk eshte gati. Kontrollo konfigurimin dhe provo perseri.");
+    return;
+  }
+
   const form = Object.fromEntries(new FormData(loginForm).entries());
-  const submitButton = loginForm.querySelector("button[type='submit']");
-  submitButton.disabled = true;
-  submitButton.textContent = "Duke u kycur...";
+  form.email = form.email.trim().toLowerCase();
+  setSubmitState(true);
 
   const { error } = await supabaseClient.auth.signInWithPassword({
     email: form.email,
@@ -21,9 +39,8 @@ loginForm.addEventListener("submit", async (event) => {
   });
 
   if (error) {
-    submitButton.disabled = false;
-    submitButton.textContent = "Kycu";
-    showToast(error.message);
+    setSubmitState(false);
+    showToast(friendlyLoginMessage(error.message));
     return;
   }
 

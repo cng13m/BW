@@ -16,6 +16,7 @@
         </span>
       </a>
       <nav class="nav-actions" aria-label="Navigimi kryesor">
+        <a class="secondary-button nav-link" href="index.html">Sallonet</a>
         <a class="secondary-button nav-link" href="login.html">Kycu</a>
       </nav>
     </header>
@@ -41,6 +42,7 @@
           Fjalekalimi
           <input required name="password" type="password" autocomplete="new-password" minlength="6" placeholder="Minimum 6 karaktere">
         </label>
+        <p class="form-note">Perdor nje email qe mund ta hapesh, sepse mund te kerkohet konfirmim nga Supabase.</p>
         <label>
           Emri i sallonit
           <input required name="salonName" placeholder="Emri i sallonit">
@@ -52,7 +54,7 @@
           </label>
           <label>
             Telefoni
-            <input required name="phone" autocomplete="tel" placeholder="+383...">
+            <input required name="phone" type="tel" autocomplete="tel" inputmode="tel" minlength="7" placeholder="+383...">
           </label>
         </div>
         <label>
@@ -68,7 +70,7 @@
           <textarea name="description" rows="3" placeholder="P.sh. Sallon flokesh per femra ne Prishtine"></textarea>
         </label>
         <button class="primary-button" type="submit">Krijo llogarine</button>
-        <p class="form-note">Pas regjistrimit hapet dashboardi ku mund te shtosh sherbime.</p>
+        <p class="form-note">Pas regjistrimit hapet dashboardi ku mund te shtosh sherbime. Ke llogari? <a href="login.html">Kycu ketu</a>.</p>
       </form>
     </main>
 

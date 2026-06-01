@@ -19,6 +19,7 @@
       <nav class="nav-actions" aria-label="Navigimi kryesor">
         <a class="secondary-button nav-link desktop-link" href="signup.html">Regjistro sallon</a>
         <a class="secondary-button nav-link desktop-link" href="login.html">Kycu</a>
+        <a class="secondary-button nav-link desktop-link" href="dashboard.html">Dashboard</a>
         <button class="icon-button" type="button" data-view="browse" aria-label="Shfleto sallonet" title="Shfleto">
           <span aria-hidden="true">&#128269;</span>
         </button>
@@ -31,7 +32,7 @@
     <main id="top">
       <section class="search-panel" aria-labelledby="page-title">
         <div class="search-copy">
-          <p class="kicker">MVP Prishtine</p>
+          <p class="kicker">MVP Kosove</p>
           <h1 id="page-title">Rezervo termine bukurie afer teje.</h1>
           <p>Gjej sallone flokesh, thonj, kujdes fytyre, qerpike dhe masazhe me cmime te qarta dhe rezervim te shpejte.</p>
         </div>
@@ -48,6 +49,7 @@
             </select>
           </div>
           <div class="category-tabs" id="categoryTabs" aria-label="Kategorite e sherbimeve"></div>
+          <p class="form-note" id="searchHelp">Kerko sipas emrit te sallonit, sherbimit, qytetit ose lagjes.</p>
         </form>
       </section>
 
@@ -119,7 +121,7 @@
               </label>
               <label>
                 Telefoni ose Instagrami
-                <input required name="contact" placeholder="+383... or @salon">
+                <input required name="contact" placeholder="+383... ose @salloni">
               </label>
               <label>
                 Kategoria
@@ -162,7 +164,7 @@
         <input type="hidden" name="salonId">
         <label>
           Emri
-          <input required name="customerName" autocomplete="name" placeholder="Emri">
+          <input required name="customerName" autocomplete="given-name" placeholder="Emri">
         </label>
         <label>
           Mbiemri
@@ -170,7 +172,7 @@
         </label>
         <label>
           Numri i telefonit
-          <input required name="phone" autocomplete="tel" placeholder="+383 44 000 000">
+          <input required name="phone" type="tel" autocomplete="tel" inputmode="tel" minlength="7" placeholder="+383 44 000 000">
         </label>
         <label>
           Sherbimi
@@ -191,7 +193,7 @@
           <textarea name="notes" rows="3" placeholder="Opsionale"></textarea>
         </label>
         <button class="primary-button" type="submit">Dergo kerkesen</button>
-        <p class="form-note">Salloni e konfirmon manualisht. Kjo eshte menyra me e sigurt per versionin e pare.</p>
+        <p class="form-note">Salloni e konfirmon manualisht. Do ta shohesh kerkesen te seksioni Admin me statusin "Ne pritje".</p>
       </form>
     </dialog>
 

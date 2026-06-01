@@ -12,6 +12,7 @@ let currentSalon = null;
 
 const statusLabels = {
   pending: "Ne pritje",
+  approved: "Aktiv",
   confirmed: "Konfirmuar",
   rejected: "Refuzuar",
   completed: "Perfunduar",
@@ -24,6 +25,28 @@ function showToast(message) {
   window.setTimeout(() => toast.classList.remove("is-visible"), 2800);
 }
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
+}
+
+function setButtonLoading(button, isLoading, loadingText) {
+  if (!button) return;
+  if (isLoading) {
+    button.dataset.originalText = button.textContent;
+    button.textContent = loadingText;
+    button.disabled = true;
+    return;
+  }
+  button.textContent = button.dataset.originalText || button.textContent;
+  button.disabled = false;
+}
+
 function euro(value) {
   return `${Number(value).toFixed(2)} EUR`;
 }
@@ -33,6 +56,14 @@ function statusLabel(status) {
 }
 
 async function loadDashboard() {
+  if (!supabaseClient) {
+    dashboardMeta.textContent = "Supabase nuk eshte gati.";
+    servicesList.innerHTML = '<p class="meta-line">Kontrollo konfigurimin e Supabase para se te shtosh sherbime.</p>';
+    bookingsList.innerHTML = '<p class="meta-line">Kerkesat shfaqen pasi Supabase te jete lidhur.</p>';
+    serviceForm.querySelector("button[type='submit']").disabled = true;
+    return;
+  }
+
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const user = sessionData.session?.user;
 
@@ -49,13 +80,15 @@ async function loadDashboard() {
 
   if (linkError || !link?.salons) {
     showToast("Nuk u gjet salloni per kete llogari.");
+    dashboardMeta.textContent = "Nuk u gjet salloni. Regjistro sallonin ose kycu me llogarine e pronarit.";
+    serviceForm.querySelector("button[type='submit']").disabled = true;
     return;
   }
 
   currentSalon = link.salons;
   dashboardSalonName.textContent = currentSalon.name;
   dashboardTitle.textContent = currentSalon.name;
-  dashboardMeta.textContent = `${currentSalon.city} - ${currentSalon.address || "Pa adrese"} - statusi: ${currentSalon.status || "pending"}`;
+  dashboardMeta.textContent = `${currentSalon.city} - ${currentSalon.address || "Pa adrese"} - statusi: ${statusLabel(currentSalon.status)}`;
 
   await Promise.all([loadServices(), loadBookings()]);
 }
@@ -68,18 +101,18 @@ async function loadServices() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    servicesList.innerHTML = '<p class="meta-line">Sherbimet nuk u ngarkuan.</p>';
+    servicesList.innerHTML = '<p class="meta-line">Sherbimet nuk u ngarkuan. Provo rifreskimin e faqes.</p>';
     return;
   }
 
   if (!data.length) {
-    servicesList.innerHTML = '<p class="meta-line">Ende nuk ke shtuar sherbime.</p>';
+    servicesList.innerHTML = '<p class="meta-line">Ende nuk ke shtuar sherbime. Shto sherbimin e pare qe klientet te mund te rezervojne.</p>';
     return;
   }
 
   servicesList.innerHTML = data.map((service) => `
     <div class="request-item">
-      <strong>${service.name}</strong>
+      <strong>${escapeHtml(service.name)}</strong>
       <small>${euro(service.price)} - ${service.duration_minutes || 30} min</small>
     </div>
   `).join("");
@@ -93,34 +126,35 @@ async function loadBookings() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    bookingsList.innerHTML = '<p class="meta-line">Kerkesat nuk u ngarkuan.</p>';
+    bookingsList.innerHTML = '<p class="meta-line">Kerkesat nuk u ngarkuan. Kontrollo politikat e Supabase ose provo perseri.</p>';
     return;
   }
 
   if (!data.length) {
-    bookingsList.innerHTML = '<p class="meta-line">Ende nuk ka kerkesa per rezervim.</p>';
+    bookingsList.innerHTML = '<p class="meta-line">Ende nuk ka kerkesa per rezervim. Kur klientet dergojne formularin, ato shfaqen ketu me statusin "Ne pritje".</p>';
     return;
   }
 
   bookingsList.innerHTML = data.map((booking) => `
     <div class="request-item">
       <div class="request-topline">
-        <strong>${booking.customer_name} ${booking.customer_surname}</strong>
+        <strong>${escapeHtml(booking.customer_name)} ${escapeHtml(booking.customer_surname)}</strong>
         <span class="status-badge status-${booking.status || "pending"}">${statusLabel(booking.status)}</span>
       </div>
-      <small>${booking.services?.name || "Sherbim"} - ${booking.booking_date} ne ${booking.booking_time}</small>
-      <small>${booking.customer_phone}</small>
-      ${booking.notes ? `<small>${booking.notes}</small>` : ""}
+      <small>${escapeHtml(booking.services?.name || "Sherbim")} - ${escapeHtml(booking.booking_date)} ne ${escapeHtml(booking.booking_time)}</small>
+      <small>${escapeHtml(booking.customer_phone)}</small>
+      ${booking.notes ? `<small>${escapeHtml(booking.notes)}</small>` : ""}
       <div class="booking-actions">
-        <button class="mini-button confirm" type="button" data-status="confirmed" data-booking-id="${booking.id}">Konfirmo</button>
-        <button class="mini-button reject" type="button" data-status="rejected" data-booking-id="${booking.id}">Refuzo</button>
-        <button class="mini-button complete" type="button" data-status="completed" data-booking-id="${booking.id}">Perfundo</button>
+        <button class="mini-button confirm" type="button" data-status="confirmed" data-booking-id="${booking.id}" ${booking.status === "confirmed" || booking.status === "completed" ? "disabled" : ""}>Konfirmo</button>
+        <button class="mini-button reject" type="button" data-status="rejected" data-booking-id="${booking.id}" ${booking.status === "rejected" || booking.status === "completed" ? "disabled" : ""}>Refuzo</button>
+        <button class="mini-button complete" type="button" data-status="completed" data-booking-id="${booking.id}" ${booking.status !== "confirmed" ? "disabled" : ""}>Perfundo</button>
       </div>
     </div>
   `).join("");
 }
 
-async function updateBookingStatus(bookingId, status) {
+async function updateBookingStatus(bookingId, status, button) {
+  setButtonLoading(button, true, "...");
   const { error } = await supabaseClient
     .from("bookings")
     .update({ status })
@@ -128,6 +162,7 @@ async function updateBookingStatus(bookingId, status) {
     .eq("salon_id", currentSalon.id);
 
   if (error) {
+    setButtonLoading(button, false);
     showToast(error.message);
     return;
   }
@@ -139,21 +174,26 @@ async function updateBookingStatus(bookingId, status) {
 serviceForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!currentSalon) return;
+  if (!serviceForm.reportValidity()) return;
 
   const form = Object.fromEntries(new FormData(serviceForm).entries());
+  const submitButton = serviceForm.querySelector("button[type='submit']");
+  setButtonLoading(submitButton, true, "Duke u ruajtur...");
   const { error } = await supabaseClient.from("services").insert({
     salon_id: currentSalon.id,
-    name: form.name,
+    name: form.name.trim(),
     price: Number(form.price),
     duration_minutes: Number(form.duration)
   });
 
   if (error) {
+    setButtonLoading(submitButton, false);
     showToast(error.message);
     return;
   }
 
   serviceForm.reset();
+  setButtonLoading(submitButton, false);
   showToast("Sherbimi u ruajt.");
   await loadServices();
 });
@@ -166,7 +206,7 @@ logoutButton.addEventListener("click", async () => {
 bookingsList.addEventListener("click", (event) => {
   const button = event.target.closest("[data-booking-id]");
   if (!button) return;
-  updateBookingStatus(button.dataset.bookingId, button.dataset.status);
+  updateBookingStatus(button.dataset.bookingId, button.dataset.status, button);
 });
 
 loadDashboard();
