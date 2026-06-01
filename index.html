@@ -1,26 +1,26 @@
 <!doctype html>
-<html lang="en">
+<html lang="sq">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bukuri Booking Kosovo</title>
-    <meta name="description" content="Book beauty and wellness appointments in Kosovo.">
+    <title>Bukuri - Rezervo termine bukurie ne Kosove</title>
+    <meta name="description" content="Rezervo termine bukurie dhe mireqenieje ne Kosove.">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="#top" aria-label="Bukuri home">
+      <a class="brand" href="#top" aria-label="Faqja kryesore Bukuri">
         <span class="brand-mark">B</span>
         <span>
           <strong>Bukuri</strong>
-          <small>Beauty booking</small>
+          <small>Rezervime bukurie</small>
         </span>
       </a>
-      <nav class="nav-actions" aria-label="Main navigation">
-        <button class="icon-button" type="button" data-view="browse" aria-label="Browse salons" title="Browse">
+      <nav class="nav-actions" aria-label="Navigimi kryesor">
+        <button class="icon-button" type="button" data-view="browse" aria-label="Shfleto sallonet" title="Shfleto">
           <span aria-hidden="true">&#128269;</span>
         </button>
-        <button class="icon-button" type="button" data-view="admin" aria-label="Open admin" title="Admin">
+        <button class="icon-button" type="button" data-view="admin" aria-label="Hap adminin" title="Admin">
           <span aria-hidden="true">&#9776;</span>
         </button>
       </nav>
@@ -29,114 +29,114 @@
     <main id="top">
       <section class="search-panel" aria-labelledby="page-title">
         <div class="search-copy">
-          <p class="kicker">Prishtina MVP</p>
-          <h1 id="page-title">Book beauty and wellness appointments near you.</h1>
-          <p>Find barbers, nails, hair, skincare, lashes, and massage services with clear prices and quick booking requests.</p>
+          <p class="kicker">MVP Prishtine</p>
+          <h1 id="page-title">Rezervo termine bukurie afer teje.</h1>
+          <p>Gjej sallone flokesh, thonj, kujdes fytyre, qerpike dhe masazhe me cmime te qarta dhe rezervim te shpejte.</p>
         </div>
 
         <form class="search-box" id="searchForm">
-          <label for="searchInput">Search</label>
+          <label for="searchInput">Kerko</label>
           <div class="search-row">
-            <input id="searchInput" type="search" placeholder="Salon, service, or area">
-            <select id="cityFilter" aria-label="City">
-              <option value="all">All cities</option>
+            <input id="searchInput" type="search" placeholder="Sallon, sherbim ose lagje">
+            <select id="cityFilter" aria-label="Qyteti">
+              <option value="all">Te gjitha qytetet</option>
               <option value="Prishtina">Prishtina</option>
               <option value="Prizren">Prizren</option>
               <option value="Peja">Peja</option>
             </select>
           </div>
-          <div class="category-tabs" id="categoryTabs" aria-label="Service categories"></div>
+          <div class="category-tabs" id="categoryTabs" aria-label="Kategorite e sherbimeve"></div>
         </form>
       </section>
 
-      <section class="stats-band" aria-label="Marketplace stats">
+      <section class="stats-band" aria-label="Statistikat e platformes">
         <div>
           <strong id="salonCount">0</strong>
-          <span>salons</span>
+          <span>sallone</span>
         </div>
         <div>
           <strong id="serviceCount">0</strong>
-          <span>services</span>
+          <span>sherbime</span>
         </div>
         <div>
           <strong>1 min</strong>
-          <span>request</span>
+          <span>kerkese</span>
         </div>
       </section>
 
       <section class="app-layout" data-current-view="browse">
-        <aside class="filters" aria-label="Filters">
+        <aside class="filters" aria-label="Filtrat">
           <div class="filter-head">
-            <h2>Filters</h2>
-            <button class="text-button" type="button" id="resetFilters">Reset</button>
+            <h2>Filtrat</h2>
+            <button class="text-button" type="button" id="resetFilters">Pastro</button>
           </div>
           <label>
-            Sort by
+            Rendit sipas
             <select id="sortFilter">
-              <option value="recommended">Recommended</option>
-              <option value="rating">Highest rated</option>
-              <option value="price">Lowest starting price</option>
-              <option value="response">Fastest response</option>
+              <option value="recommended">Te rekomanduara</option>
+              <option value="rating">Vleresimi me i larte</option>
+              <option value="price">Cmimi fillestar me i ulet</option>
+              <option value="response">Pergjigja me e shpejte</option>
             </select>
           </label>
           <label class="toggle-row">
             <input type="checkbox" id="openTodayFilter">
-            <span>Open today</span>
+            <span>Hapur sot</span>
           </label>
           <label class="toggle-row">
             <input type="checkbox" id="verifiedFilter">
-            <span>Verified only</span>
+            <span>Vetem te verifikuara</span>
           </label>
         </aside>
 
         <section class="browse-view" aria-labelledby="salons-title">
           <div class="section-heading">
             <div>
-              <p class="kicker">Browse</p>
-              <h2 id="salons-title">Available salons</h2>
+              <p class="kicker">Shfleto</p>
+              <h2 id="salons-title">Sallonet e disponueshme</h2>
             </div>
             <span id="resultCount" class="result-count"></span>
           </div>
           <div class="salon-grid" id="salonGrid"></div>
-          <p class="empty-state" id="emptyState" hidden>No salons found. Try a different search or category.</p>
+          <p class="empty-state" id="emptyState" hidden>Nuk u gjet asnje sallon. Provo nje kerkim ose kategori tjeter.</p>
         </section>
 
         <section class="admin-view" aria-labelledby="admin-title">
           <div class="section-heading">
             <div>
               <p class="kicker">Operator</p>
-              <h2 id="admin-title">Booking requests</h2>
+              <h2 id="admin-title">Kerkesat per rezervim</h2>
             </div>
           </div>
           <div class="admin-grid">
             <form class="admin-card" id="quickSalonForm">
-              <h3>Add a salon lead</h3>
+              <h3>Shto nje kontakt salloni</h3>
               <label>
-                Salon name
-                <input required name="name" placeholder="Example Beauty Studio">
+                Emri i sallonit
+                <input required name="name" placeholder="Shembull Beauty Studio">
               </label>
               <label>
-                Phone or Instagram
+                Telefoni ose Instagrami
                 <input required name="contact" placeholder="+383... or @salon">
               </label>
               <label>
-                Category
+                Kategoria
                 <select name="category">
-                  <option>Hair</option>
-                  <option>Barber</option>
-                  <option>Nails</option>
-                  <option>Skincare</option>
-                  <option>Massage</option>
+                  <option>Floke</option>
+                  <option>Berber</option>
+                  <option>Thonj</option>
+                  <option>Kujdes fytyre</option>
+                  <option>Masazh</option>
                 </select>
               </label>
-              <button class="primary-button" type="submit">Save lead</button>
+              <button class="primary-button" type="submit">Ruaj kontaktin</button>
             </form>
             <div class="admin-card">
-              <h3>Requests</h3>
+              <h3>Kerkesat</h3>
               <div class="request-list" id="requestList"></div>
             </div>
             <div class="admin-card">
-              <h3>Salon leads</h3>
+              <h3>Kontaktet e salloneve</h3>
               <div class="request-list" id="leadList"></div>
             </div>
           </div>
@@ -145,51 +145,51 @@
     </main>
 
     <dialog class="profile-dialog" id="profileDialog">
-      <button class="close-button" type="button" id="closeProfile" aria-label="Close">&times;</button>
+      <button class="close-button" type="button" id="closeProfile" aria-label="Mbyll">&times;</button>
       <div id="profileContent"></div>
     </dialog>
 
     <dialog class="booking-dialog" id="bookingDialog">
-      <button class="close-button" type="button" id="closeBooking" aria-label="Close">&times;</button>
+      <button class="close-button" type="button" id="closeBooking" aria-label="Mbyll">&times;</button>
       <form class="booking-form" id="bookingForm">
         <div>
-          <p class="kicker">Booking request</p>
-          <h2 id="bookingTitle">Request appointment</h2>
+          <p class="kicker">Kerkese rezervimi</p>
+          <h2 id="bookingTitle">Kerko termin</h2>
           <p id="bookingSubtitle"></p>
         </div>
         <input type="hidden" name="salonId">
         <label>
-          Your name
-          <input required name="customerName" autocomplete="name" placeholder="Full name">
+          Emri
+          <input required name="customerName" autocomplete="name" placeholder="Emri">
         </label>
         <label>
-          Surname
-          <input required name="customerSurname" autocomplete="family-name" placeholder="Surname">
+          Mbiemri
+          <input required name="customerSurname" autocomplete="family-name" placeholder="Mbiemri">
         </label>
         <label>
-          Phone number
+          Numri i telefonit
           <input required name="phone" autocomplete="tel" placeholder="+383 44 000 000">
         </label>
         <label>
-          Service
+          Sherbimi
           <select required name="service"></select>
         </label>
         <div class="form-row">
           <label>
-            Date
+            Data
             <input required name="date" type="date">
           </label>
           <label>
-            Time
+            Ora
             <input required name="time" type="time">
           </label>
         </div>
         <label>
-          Notes
-          <textarea name="notes" rows="3" placeholder="Optional"></textarea>
+          Shenime
+          <textarea name="notes" rows="3" placeholder="Opsionale"></textarea>
         </label>
-        <button class="primary-button" type="submit">Send request</button>
-        <p class="form-note">The salon confirms manually. This is the safest MVP flow.</p>
+        <button class="primary-button" type="submit">Dergo kerkesen</button>
+        <p class="form-note">Salloni e konfirmon manualisht. Kjo eshte menyra me e sigurt per versionin e pare.</p>
       </form>
     </dialog>
 

@@ -1,4 +1,12 @@
 const categories = ["All", "Barber", "Nails", "Hair", "Skincare", "Massage"];
+const categoryLabels = {
+  All: "Te gjitha",
+  Barber: "Berber",
+  Nails: "Thonj",
+  Hair: "Floke",
+  Skincare: "Kujdes fytyre",
+  Massage: "Masazh"
+};
 
 const SUPABASE_URL = "https://ymcvloitokyejqgwhjjd.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_laKxjcT7H_nI27aB1heRJA_ISO2mCk2";
@@ -18,9 +26,9 @@ let salons = [
     responseMinutes: 8,
     image: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1200&q=80",
     services: [
-      { name: "Haircut", price: 8, duration: "30 min" },
-      { name: "Beard trim", price: 5, duration: "20 min" },
-      { name: "Haircut + beard", price: 12, duration: "45 min" }
+      { name: "Prerje flokesh", price: 8, duration: "30 min" },
+      { name: "Rregullim mjekre", price: 5, duration: "20 min" },
+      { name: "Prerje + mjekerr", price: 12, duration: "45 min" }
     ]
   },
   {
@@ -36,9 +44,9 @@ let salons = [
     responseMinutes: 12,
     image: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=1200&q=80",
     services: [
-      { name: "Gel nails", price: 18, duration: "60 min" },
-      { name: "Manicure", price: 10, duration: "35 min" },
-      { name: "Pedicure", price: 14, duration: "45 min" }
+      { name: "Thonj gel", price: 18, duration: "60 min" },
+      { name: "Manikyr", price: 10, duration: "35 min" },
+      { name: "Pedikyr", price: 14, duration: "45 min" }
     ]
   },
   {
@@ -54,9 +62,9 @@ let salons = [
     responseMinutes: 18,
     image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=1200&q=80",
     services: [
-      { name: "Blow dry", price: 12, duration: "35 min" },
-      { name: "Hair coloring", price: 35, duration: "120 min" },
-      { name: "Cut and style", price: 18, duration: "60 min" }
+      { name: "Fenirim", price: 12, duration: "35 min" },
+      { name: "Ngjyrosje flokesh", price: 35, duration: "120 min" },
+      { name: "Prerje dhe stilim", price: 18, duration: "60 min" }
     ]
   },
   {
@@ -72,9 +80,9 @@ let salons = [
     responseMinutes: 20,
     image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1200&q=80",
     services: [
-      { name: "Deep facial", price: 28, duration: "60 min" },
-      { name: "Hydration treatment", price: 35, duration: "75 min" },
-      { name: "Skin consultation", price: 15, duration: "30 min" }
+      { name: "Trajtim i thelle fytyre", price: 28, duration: "60 min" },
+      { name: "Trajtim hidratues", price: 35, duration: "75 min" },
+      { name: "Konsultim per lekure", price: 15, duration: "30 min" }
     ]
   },
   {
@@ -90,9 +98,9 @@ let salons = [
     responseMinutes: 25,
     image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1200&q=80",
     services: [
-      { name: "Relax massage", price: 25, duration: "60 min" },
-      { name: "Deep tissue", price: 35, duration: "75 min" },
-      { name: "Back massage", price: 15, duration: "30 min" }
+      { name: "Masazh relaksues", price: 25, duration: "60 min" },
+      { name: "Masazh terapeutik", price: 35, duration: "75 min" },
+      { name: "Masazh shpine", price: 15, duration: "30 min" }
     ]
   },
   {
@@ -109,8 +117,8 @@ let salons = [
     image: "https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=1200&q=80",
     services: [
       { name: "Lash lift", price: 18, duration: "50 min" },
-      { name: "Brow shaping", price: 7, duration: "20 min" },
-      { name: "Makeup", price: 30, duration: "60 min" }
+      { name: "Formesim vetullash", price: 7, duration: "20 min" },
+      { name: "Grim", price: 30, duration: "60 min" }
     ]
   }
 ];
@@ -172,13 +180,13 @@ function euro(value) {
 function normalizeSalon(row, index) {
   const services = Array.isArray(row.services) ? row.services : [];
   const description = `${row.description ?? ""} ${row.name ?? ""}`.toLowerCase();
-  const category = description.includes("barber")
+  const category = description.includes("barber") || description.includes("berber")
     ? "Barber"
-    : description.includes("nail")
+    : description.includes("nail") || description.includes("thonj")
       ? "Nails"
-      : description.includes("skin") || description.includes("lash") || description.includes("brow")
+      : description.includes("skin") || description.includes("lekure") || description.includes("fytyre") || description.includes("lash") || description.includes("qerpik") || description.includes("brow") || description.includes("vetull")
         ? "Skincare"
-        : description.includes("massage") || description.includes("spa")
+        : description.includes("massage") || description.includes("masazh") || description.includes("spa")
           ? "Massage"
           : "Hair";
 
@@ -218,7 +226,7 @@ function serviceNames(salon) {
 function renderCategories() {
   elements.categoryTabs.innerHTML = categories.map((category) => `
     <button class="chip ${state.category === category ? "is-active" : ""}" type="button" data-category="${category}">
-      ${category}
+      ${categoryLabels[category] || category}
     </button>
   `).join("");
 }
@@ -247,31 +255,31 @@ function filterSalons() {
 
 function renderSalons() {
   const results = filterSalons();
-  elements.resultCount.textContent = `${results.length} result${results.length === 1 ? "" : "s"}`;
+  elements.resultCount.textContent = `${results.length} rezultat${results.length === 1 ? "" : "e"}`;
   elements.emptyState.hidden = results.length !== 0;
   elements.salonGrid.innerHTML = results.map((salon) => `
     <article class="salon-card">
       <div class="salon-media" style="background-image: url('${salon.image}')">
         <div class="badge-row">
-          ${salon.verified ? '<span class="badge">Verified</span>' : ""}
-          <span class="badge">${salon.openToday ? "Open today" : "Closed today"}</span>
+          ${salon.verified ? '<span class="badge">Verifikuar</span>' : ""}
+          <span class="badge">${salon.openToday ? "Hapur sot" : "Mbyllur sot"}</span>
         </div>
       </div>
       <div class="salon-body">
         <div class="salon-title-row">
           <div>
             <h3>${salon.name}</h3>
-            <div class="meta-line">${salon.category} &middot; ${salon.area}, ${salon.city}</div>
+            <div class="meta-line">${categoryLabels[salon.category] || salon.category} &middot; ${salon.area}, ${salon.city}</div>
           </div>
           <div class="rating">&#9733; ${salon.rating}</div>
         </div>
-        <div class="meta-line">${salon.services.length ? `From ${euro(minimumPrice(salon))}` : "Services coming soon"} &middot; replies in ${salon.responseMinutes} min</div>
+        <div class="meta-line">${salon.services.length ? `Prej ${euro(minimumPrice(salon))}` : "Sherbimet po shtohen"} &middot; pergjigjet per ${salon.responseMinutes} min</div>
         <div class="service-pills">
-          ${salon.services.length ? salon.services.slice(0, 3).map((service) => `<span>${service.name}</span>`).join("") : "<span>No services yet</span>"}
+          ${salon.services.length ? salon.services.slice(0, 3).map((service) => `<span>${service.name}</span>`).join("") : "<span>Ende pa sherbime</span>"}
         </div>
         <div class="card-actions">
-          <button class="secondary-button" type="button" data-profile="${salon.id}">View profile</button>
-          <button class="primary-button" type="button" data-book="${salon.id}">Book</button>
+          <button class="secondary-button" type="button" data-profile="${salon.id}">Shiko profilin</button>
+          <button class="primary-button" type="button" data-book="${salon.id}">Rezervo</button>
         </div>
       </div>
     </article>
@@ -291,12 +299,12 @@ function openProfile(salonId) {
     <div class="profile-hero" style="background-image: url('${salon.image}')"></div>
     <div class="profile-body">
       <div>
-        <p class="kicker">${salon.category}</p>
+        <p class="kicker">${categoryLabels[salon.category] || salon.category}</p>
         <h2>${salon.name}</h2>
-        <p class="profile-meta">${salon.area}, ${salon.city} &middot; &#9733; ${salon.rating} from ${salon.reviews} reviews &middot; ${salon.verified ? "Verified" : "New profile"}</p>
+        <p class="profile-meta">${salon.area}, ${salon.city} &middot; &#9733; ${salon.rating} nga ${salon.reviews} vleresime &middot; ${salon.verified ? "Verifikuar" : "Profil i ri"}</p>
       </div>
       <div>
-        <h3>Services</h3>
+        <h3>Sherbimet</h3>
         <div class="service-list">
           ${salon.services.map((service) => `
             <div class="service-row">
@@ -306,7 +314,7 @@ function openProfile(salonId) {
           `).join("")}
         </div>
       </div>
-      <button class="primary-button" type="button" data-book="${salon.id}">Request appointment</button>
+      <button class="primary-button" type="button" data-book="${salon.id}">Kerko termin</button>
     </div>
   `;
   elements.profileDialog.showModal();
@@ -318,8 +326,8 @@ function openBooking(salonId) {
 
   elements.bookingForm.reset();
   elements.bookingForm.elements.salonId.value = salon.id;
-  elements.bookingTitle.textContent = `Book ${salon.name}`;
-  elements.bookingSubtitle.textContent = `${salon.area}, ${salon.city} - replies in about ${salon.responseMinutes} minutes`;
+  elements.bookingTitle.textContent = `Rezervo te ${salon.name}`;
+  elements.bookingSubtitle.textContent = `${salon.area}, ${salon.city} - pergjigjet per rreth ${salon.responseMinutes} minuta`;
   elements.bookingForm.elements.service.innerHTML = salon.services.map((service) => `
     <option value="${service.id || service.name}" data-name="${service.name}">${service.name} - ${euro(service.price)}</option>
   `).join("");
@@ -329,7 +337,7 @@ function openBooking(salonId) {
   elements.bookingForm.elements.date.min = tomorrow.toISOString().slice(0, 10);
 
   if (!salon.services.length) {
-    showToast("Add services for this salon before taking bookings.");
+    showToast("Shto sherbime per kete sallon para se te pranosh rezervime.");
     return;
   }
 
@@ -340,7 +348,7 @@ function openBooking(salonId) {
 function renderRequests() {
   const requests = storage.get("bwRequests", []);
   if (!requests.length) {
-    elements.requestList.innerHTML = '<p class="meta-line">No booking requests yet.</p>';
+    elements.requestList.innerHTML = '<p class="meta-line">Ende nuk ka kerkesa per rezervim.</p>';
     return;
   }
 
@@ -348,7 +356,7 @@ function renderRequests() {
     <div class="request-item">
       <strong>${request.customerName} - ${request.service}</strong>
       <small>${request.salonName}</small>
-      <small>${request.date} at ${request.time} - ${request.phone}</small>
+      <small>${request.date} ne ${request.time} - ${request.phone}</small>
       ${request.notes ? `<small>${request.notes}</small>` : ""}
     </div>
   `).join("");
@@ -357,7 +365,7 @@ function renderRequests() {
 function renderLeads() {
   const leads = storage.get("bwLeads", []);
   if (!leads.length) {
-    elements.leadList.innerHTML = '<p class="meta-line">No salon leads saved yet.</p>';
+    elements.leadList.innerHTML = '<p class="meta-line">Ende nuk ka kontakte sallonesh te ruajtura.</p>';
     return;
   }
 
@@ -478,12 +486,12 @@ function bindEvents() {
 
       if (!error) {
         elements.bookingDialog.close();
-        showToast("Booking request sent to Supabase.");
+        showToast("Kerkesa per rezervim u dergua.");
         return;
       }
 
       console.warn("Supabase booking failed:", error.message);
-      showToast("Could not save to Supabase. Saved locally for now.");
+      showToast("Nuk u ruajt ne Supabase. U ruajt lokalisht perkohesisht.");
     }
 
     const requests = storage.get("bwRequests", []);
@@ -496,7 +504,7 @@ function bindEvents() {
     storage.set("bwRequests", requests);
     elements.bookingDialog.close();
     renderRequests();
-    showToast("Booking request saved. Check Admin to see it.");
+    showToast("Kerkesa per rezervim u ruajt. Shiko Admin per ta pare.");
   });
 
   elements.quickSalonForm.addEventListener("submit", (event) => {
@@ -507,7 +515,7 @@ function bindEvents() {
     storage.set("bwLeads", leads);
     elements.quickSalonForm.reset();
     renderLeads();
-    showToast("Salon lead saved.");
+    showToast("Kontakti i sallonit u ruajt.");
   });
 }
 
@@ -521,7 +529,7 @@ async function loadSupabaseData() {
 
   if (error) {
     console.warn("Supabase load failed:", error.message);
-    showToast("Using demo data. Check Supabase policies if real salons do not show.");
+    showToast("Po perdoren te dhena demo. Kontrollo politikat ne Supabase nese sallonet reale nuk shfaqen.");
     return;
   }
 
