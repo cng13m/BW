@@ -1,6 +1,10 @@
 const categories = ["All", "Barber", "Nails", "Hair", "Skincare", "Massage"];
 
-const salons = [
+const SUPABASE_URL = "https://ymcvloitokyejqgwhjjd.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_laKxjcT7H_nI27aB1heRJA_ISO2mCk2";
+const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+let salons = [
   {
     id: "lumi-barber",
     name: "Lumi Barber Studio",
@@ -165,7 +169,45 @@ function euro(value) {
   return `${value} EUR`;
 }
 
+function normalizeSalon(row, index) {
+  const services = Array.isArray(row.services) ? row.services : [];
+  const description = `${row.description ?? ""} ${row.name ?? ""}`.toLowerCase();
+  const category = description.includes("barber")
+    ? "Barber"
+    : description.includes("nail")
+      ? "Nails"
+      : description.includes("skin") || description.includes("lash") || description.includes("brow")
+        ? "Skincare"
+        : description.includes("massage") || description.includes("spa")
+          ? "Massage"
+          : "Hair";
+
+  return {
+    id: row.id,
+    name: row.name,
+    category,
+    city: row.city,
+    area: row.address || "Kosovo",
+    rating: 4.7 + ((index % 3) * 0.1),
+    reviews: 12 + (index * 8),
+    verified: true,
+    openToday: true,
+    responseMinutes: 10 + (index * 4),
+    image: row.image_url || "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1200&q=80",
+    phone: row.phone,
+    instagram: row.instagram,
+    description: row.description,
+    services: services.map((service) => ({
+      id: service.id,
+      name: service.name,
+      price: Number(service.price),
+      duration: `${service.duration_minutes ?? 30} min`
+    }))
+  };
+}
+
 function minimumPrice(salon) {
+  if (!salon.services.length) return 0;
   return Math.min(...salon.services.map((service) => service.price));
 }
 
@@ -223,9 +265,9 @@ function renderSalons() {
           </div>
           <div class="rating">&#9733; ${salon.rating}</div>
         </div>
-        <div class="meta-line">From ${euro(minimumPrice(salon))} &middot; replies in ${salon.responseMinutes} min</div>
+        <div class="meta-line">${salon.services.length ? `From ${euro(minimumPrice(salon))}` : "Services coming soon"} &middot; replies in ${salon.responseMinutes} min</div>
         <div class="service-pills">
-          ${salon.services.slice(0, 3).map((service) => `<span>${service.name}</span>`).join("")}
+          ${salon.services.length ? salon.services.slice(0, 3).map((service) => `<span>${service.name}</span>`).join("") : "<span>No services yet</span>"}
         </div>
         <div class="card-actions">
           <button class="secondary-button" type="button" data-profile="${salon.id}">View profile</button>
@@ -279,12 +321,17 @@ function openBooking(salonId) {
   elements.bookingTitle.textContent = `Book ${salon.name}`;
   elements.bookingSubtitle.textContent = `${salon.area}, ${salon.city} - replies in about ${salon.responseMinutes} minutes`;
   elements.bookingForm.elements.service.innerHTML = salon.services.map((service) => `
-    <option value="${service.name}">${service.name} - ${euro(service.price)}</option>
+    <option value="${service.id || service.name}" data-name="${service.name}">${service.name} - ${euro(service.price)}</option>
   `).join("");
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   elements.bookingForm.elements.date.min = tomorrow.toISOString().slice(0, 10);
+
+  if (!salon.services.length) {
+    showToast("Add services for this salon before taking bookings.");
+    return;
+  }
 
   if (elements.profileDialog.open) elements.profileDialog.close();
   elements.bookingDialog.showModal();
@@ -407,14 +454,43 @@ function bindEvents() {
     });
   });
 
-  elements.bookingForm.addEventListener("submit", (event) => {
+  elements.bookingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(elements.bookingForm).entries());
     const salon = salons.find((item) => item.id === data.salonId);
+    const serviceSelect = elements.bookingForm.elements.service;
+    const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+    const serviceName = selectedOption?.dataset.name || data.service;
+    const serviceId = data.service?.includes("-") ? data.service : null;
+
+    if (supabaseClient && salon) {
+      const { error } = await supabaseClient.from("bookings").insert({
+        salon_id: salon.id,
+        service_id: serviceId,
+        customer_name: data.customerName,
+        customer_surname: data.customerSurname,
+        customer_phone: data.phone,
+        booking_date: data.date,
+        booking_time: data.time,
+        status: "pending",
+        notes: data.notes || null
+      });
+
+      if (!error) {
+        elements.bookingDialog.close();
+        showToast("Booking request sent to Supabase.");
+        return;
+      }
+
+      console.warn("Supabase booking failed:", error.message);
+      showToast("Could not save to Supabase. Saved locally for now.");
+    }
+
     const requests = storage.get("bwRequests", []);
     requests.unshift({
       ...data,
       salonName: salon.name,
+      service: serviceName,
       createdAt: new Date().toISOString()
     });
     storage.set("bwRequests", requests);
@@ -435,7 +511,27 @@ function bindEvents() {
   });
 }
 
-function init() {
+async function loadSupabaseData() {
+  if (!supabaseClient) return;
+
+  const { data, error } = await supabaseClient
+    .from("salons")
+    .select("*, services(*)")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.warn("Supabase load failed:", error.message);
+    showToast("Using demo data. Check Supabase policies if real salons do not show.");
+    return;
+  }
+
+  if (data?.length) {
+    salons = data.map(normalizeSalon);
+  }
+}
+
+async function init() {
+  await loadSupabaseData();
   renderStats();
   renderCategories();
   renderSalons();
