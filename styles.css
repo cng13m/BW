@@ -521,6 +521,73 @@ textarea:focus {
   line-height: 1.45;
 }
 
+.request-topline {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.status-badge {
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 850;
+  padding: 5px 8px;
+  white-space: nowrap;
+}
+
+.status-pending {
+  background: #fff4d9;
+  color: #8a5b00;
+}
+
+.status-confirmed {
+  background: #dff8ee;
+  color: #0b755e;
+}
+
+.status-rejected,
+.status-cancelled {
+  background: #ffe5e8;
+  color: #a72f45;
+}
+
+.status-completed {
+  background: #e7ecff;
+  color: #365f9f;
+}
+
+.booking-actions {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 8px;
+}
+
+.mini-button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 850;
+  min-height: 36px;
+  padding: 7px 9px;
+}
+
+.mini-button.confirm {
+  background: #e8fbf4;
+  color: #0b755e;
+}
+
+.mini-button.reject {
+  background: #fff1f3;
+  color: #a72f45;
+}
+
+.mini-button.complete {
+  background: #eef2ff;
+  color: #365f9f;
+}
+
 dialog {
   max-width: min(720px, calc(100vw - 24px));
 }

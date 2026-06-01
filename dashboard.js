@@ -10,6 +10,14 @@ const logoutButton = document.querySelector("#logoutButton");
 
 let currentSalon = null;
 
+const statusLabels = {
+  pending: "Ne pritje",
+  confirmed: "Konfirmuar",
+  rejected: "Refuzuar",
+  completed: "Perfunduar",
+  cancelled: "Anuluar"
+};
+
 function showToast(message) {
   toast.textContent = message;
   toast.classList.add("is-visible");
@@ -18,6 +26,10 @@ function showToast(message) {
 
 function euro(value) {
   return `${Number(value).toFixed(2)} EUR`;
+}
+
+function statusLabel(status) {
+  return statusLabels[status] || status || "Ne pritje";
 }
 
 async function loadDashboard() {
@@ -92,12 +104,36 @@ async function loadBookings() {
 
   bookingsList.innerHTML = data.map((booking) => `
     <div class="request-item">
-      <strong>${booking.customer_name} ${booking.customer_surname}</strong>
+      <div class="request-topline">
+        <strong>${booking.customer_name} ${booking.customer_surname}</strong>
+        <span class="status-badge status-${booking.status || "pending"}">${statusLabel(booking.status)}</span>
+      </div>
       <small>${booking.services?.name || "Sherbim"} - ${booking.booking_date} ne ${booking.booking_time}</small>
-      <small>${booking.customer_phone} - ${booking.status}</small>
+      <small>${booking.customer_phone}</small>
       ${booking.notes ? `<small>${booking.notes}</small>` : ""}
+      <div class="booking-actions">
+        <button class="mini-button confirm" type="button" data-status="confirmed" data-booking-id="${booking.id}">Konfirmo</button>
+        <button class="mini-button reject" type="button" data-status="rejected" data-booking-id="${booking.id}">Refuzo</button>
+        <button class="mini-button complete" type="button" data-status="completed" data-booking-id="${booking.id}">Perfundo</button>
+      </div>
     </div>
   `).join("");
+}
+
+async function updateBookingStatus(bookingId, status) {
+  const { error } = await supabaseClient
+    .from("bookings")
+    .update({ status })
+    .eq("id", bookingId)
+    .eq("salon_id", currentSalon.id);
+
+  if (error) {
+    showToast(error.message);
+    return;
+  }
+
+  showToast(`Rezervimi u perditesua: ${statusLabel(status)}.`);
+  await loadBookings();
 }
 
 serviceForm.addEventListener("submit", async (event) => {
@@ -125,6 +161,12 @@ serviceForm.addEventListener("submit", async (event) => {
 logoutButton.addEventListener("click", async () => {
   await supabaseClient.auth.signOut();
   window.location.href = "login.html";
+});
+
+bookingsList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-booking-id]");
+  if (!button) return;
+  updateBookingStatus(button.dataset.bookingId, button.dataset.status);
 });
 
 loadDashboard();
