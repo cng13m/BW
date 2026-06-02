@@ -32,6 +32,28 @@
       </section>
 
       <section class="admin-grid dashboard-grid">
+        <form class="admin-card" id="locationForm">
+          <h3>Lokacioni</h3>
+          <p class="form-note">Perditeso adresen ose ruaj pinin aktual qe klientet te hapin lokacionin ne Google Maps.</p>
+          <label>
+            Qyteti
+            <input required name="city" id="dashboardCity" placeholder="Prishtina">
+          </label>
+          <label>
+            Adresa ose pini
+            <input name="address" id="dashboardAddress" placeholder="Lagjja, rruga ose pin koordinatash">
+          </label>
+          <label>
+            Foto publike e sallonit
+            <input name="imageUrl" id="dashboardImageUrl" type="url" placeholder="https://...">
+          </label>
+          <div class="map-tools" aria-label="Veglat e lokacionit">
+            <button class="secondary-button" type="button" id="dashboardLocationButton">Perdor lokacionin tim</button>
+            <a class="secondary-button" id="dashboardMapLink" href="https://www.google.com/maps" target="_blank" rel="noopener">Kontrollo ne harte</a>
+          </div>
+          <button class="primary-button" type="submit">Ruaj lokacionin</button>
+        </form>
+
         <form class="admin-card" id="serviceForm">
           <h3>Shto sherbim</h3>
           <p class="form-note">Sherbimet shfaqen ne profilin publik dhe perdoren ne formularin e rezervimit.</p>

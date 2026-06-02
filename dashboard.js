@@ -3,6 +3,12 @@ const toast = document.querySelector("#toast");
 const dashboardSalonName = document.querySelector("#dashboardSalonName");
 const dashboardTitle = document.querySelector("#dashboardTitle");
 const dashboardMeta = document.querySelector("#dashboardMeta");
+const locationForm = document.querySelector("#locationForm");
+const dashboardCity = document.querySelector("#dashboardCity");
+const dashboardAddress = document.querySelector("#dashboardAddress");
+const dashboardImageUrl = document.querySelector("#dashboardImageUrl");
+const dashboardLocationButton = document.querySelector("#dashboardLocationButton");
+const dashboardMapLink = document.querySelector("#dashboardMapLink");
 const serviceForm = document.querySelector("#serviceForm");
 const servicesList = document.querySelector("#dashboardServices");
 const bookingsList = document.querySelector("#dashboardBookings");
@@ -55,6 +61,43 @@ function statusLabel(status) {
   return statusLabels[status] || status || "Ne pritje";
 }
 
+function mapUrlForSalon() {
+  const query = [
+    currentSalon?.name,
+    dashboardAddress.value.trim(),
+    dashboardCity.value.trim(),
+    "Kosovo"
+  ].filter(Boolean).join(", ");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query || "Kosovo")}`;
+}
+
+function updateDashboardMapLink() {
+  dashboardMapLink.href = mapUrlForSalon();
+}
+
+function setDashboardCurrentLocation() {
+  if (!navigator.geolocation) {
+    showToast("Shfletuesi nuk e mbeshtet lokacionin.");
+    return;
+  }
+
+  dashboardLocationButton.disabled = true;
+  dashboardLocationButton.textContent = "Duke kerkuar...";
+  navigator.geolocation.getCurrentPosition((position) => {
+    const latitude = position.coords.latitude.toFixed(6);
+    const longitude = position.coords.longitude.toFixed(6);
+    dashboardAddress.value = `Pin: ${latitude}, ${longitude}`;
+    updateDashboardMapLink();
+    dashboardLocationButton.disabled = false;
+    dashboardLocationButton.textContent = "Perdor lokacionin tim";
+    showToast("Pini u vendos. Ruaje lokacionin per ta publikuar.");
+  }, () => {
+    dashboardLocationButton.disabled = false;
+    dashboardLocationButton.textContent = "Perdor lokacionin tim";
+    showToast("Nuk u mor lokacioni. Lejo qasjen ose shkruaj adresen.");
+  }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
 async function loadDashboard() {
   if (!supabaseClient) {
     dashboardMeta.textContent = "Supabase nuk eshte gati.";
@@ -89,6 +132,10 @@ async function loadDashboard() {
   dashboardSalonName.textContent = currentSalon.name;
   dashboardTitle.textContent = currentSalon.name;
   dashboardMeta.textContent = `${currentSalon.city} - ${currentSalon.address || "Pa adrese"} - statusi: ${statusLabel(currentSalon.status)}`;
+  dashboardCity.value = currentSalon.city || "";
+  dashboardAddress.value = currentSalon.address || "";
+  dashboardImageUrl.value = currentSalon.image_url || "";
+  updateDashboardMapLink();
 
   await Promise.all([loadServices(), loadBookings()]);
 }
@@ -197,6 +244,45 @@ serviceForm.addEventListener("submit", async (event) => {
   showToast("Sherbimi u ruajt.");
   await loadServices();
 });
+
+locationForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!currentSalon) return;
+  if (!locationForm.reportValidity()) return;
+
+  const form = Object.fromEntries(new FormData(locationForm).entries());
+  const submitButton = locationForm.querySelector("button[type='submit']");
+  setButtonLoading(submitButton, true, "Duke u ruajtur...");
+
+  const { data, error } = await supabaseClient
+    .from("salons")
+    .update({
+      city: form.city.trim(),
+      address: form.address.trim() || null,
+      image_url: form.imageUrl.trim() || null
+    })
+    .eq("id", currentSalon.id)
+    .select()
+    .single();
+
+  if (error) {
+    setButtonLoading(submitButton, false);
+    showToast(error.message);
+    return;
+  }
+
+  currentSalon = data;
+  dashboardMeta.textContent = `${currentSalon.city} - ${currentSalon.address || "Pa adrese"} - statusi: ${statusLabel(currentSalon.status)}`;
+  updateDashboardMapLink();
+  setButtonLoading(submitButton, false);
+  showToast("Lokacioni dhe fotoja u perditesuan.");
+});
+
+[dashboardCity, dashboardAddress].forEach((input) => {
+  input.addEventListener("input", updateDashboardMapLink);
+});
+
+dashboardLocationButton.addEventListener("click", setDashboardCurrentLocation);
 
 logoutButton.addEventListener("click", async () => {
   await supabaseClient.auth.signOut();

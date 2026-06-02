@@ -346,6 +346,18 @@ textarea:focus {
   grid-template-columns: 1fr 150px;
 }
 
+.map-tools {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.map-tools .secondary-button {
+  --btn-pad: 0.72em 1em;
+  --btn-size: 0.78rem;
+  min-width: 0;
+}
+
 .category-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -1300,6 +1312,7 @@ dialog::backdrop {
 
   .search-row,
   .form-row,
+  .map-tools,
   .card-actions,
   .salon-grid,
   .stats-band,

@@ -59,11 +59,20 @@
         </div>
         <label>
           Adresa
-          <input name="address" placeholder="Lagjja ose adresa">
+          <input name="address" id="addressInput" placeholder="Lagjja, rruga ose perdor pinin">
         </label>
+        <div class="map-tools" aria-label="Veglat e lokacionit">
+          <button class="secondary-button" type="button" id="useLocationButton">Perdor lokacionin tim</button>
+          <a class="secondary-button" id="previewMapLink" href="https://www.google.com/maps" target="_blank" rel="noopener">Kontrollo ne harte</a>
+        </div>
+        <p class="form-note" id="mapHelp">Mund te shkruash adresen ose te ruash pinin aktual. Klientet do ta hapin lokacionin ne Google Maps.</p>
         <label>
           Instagram
           <input name="instagram" placeholder="@salloni">
+        </label>
+        <label>
+          Foto e sallonit
+          <input name="imageUrl" type="url" placeholder="https://...">
         </label>
         <label>
           Pershkrimi

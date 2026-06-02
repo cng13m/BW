@@ -300,6 +300,11 @@ function serviceNames(salon) {
 }
 
 function googleMapsUrl(salon) {
+  const pin = String(salon.area || "").match(/pin:\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/i);
+  if (pin) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${pin[1]},${pin[2]}`)}`;
+  }
+
   const location = [salon.name, salon.area, salon.city, "Kosovo"].filter(Boolean).join(", ");
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
 }

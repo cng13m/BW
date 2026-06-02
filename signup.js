@@ -1,6 +1,11 @@
 const supabaseClient = window.bwSupabase;
 const signupForm = document.querySelector("#signupForm");
 const toast = document.querySelector("#toast");
+const addressInput = document.querySelector("#addressInput");
+const cityInput = signupForm.elements.city;
+const salonNameInput = signupForm.elements.salonName;
+const useLocationButton = document.querySelector("#useLocationButton");
+const previewMapLink = document.querySelector("#previewMapLink");
 
 function showToast(message) {
   toast.textContent = message;
@@ -21,6 +26,48 @@ function friendlyAuthMessage(message) {
   return message;
 }
 
+function mapUrlForLocation() {
+  const address = addressInput.value.trim();
+  const city = cityInput.value.trim();
+  const salonName = salonNameInput.value.trim();
+  const query = [salonName, address, city, "Kosovo"].filter(Boolean).join(", ");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query || "Kosovo")}`;
+}
+
+function updateMapLink() {
+  previewMapLink.href = mapUrlForLocation();
+}
+
+function setCurrentLocation() {
+  if (!navigator.geolocation) {
+    showToast("Shfletuesi nuk e mbeshtet lokacionin.");
+    return;
+  }
+
+  useLocationButton.disabled = true;
+  useLocationButton.textContent = "Duke kerkuar...";
+  navigator.geolocation.getCurrentPosition((position) => {
+    const latitude = position.coords.latitude.toFixed(6);
+    const longitude = position.coords.longitude.toFixed(6);
+    addressInput.value = `Pin: ${latitude}, ${longitude}`;
+    updateMapLink();
+    useLocationButton.disabled = false;
+    useLocationButton.textContent = "Perdor lokacionin tim";
+    showToast("Pini u ruajt ne fushe. Kontrolloje ne harte.");
+  }, () => {
+    useLocationButton.disabled = false;
+    useLocationButton.textContent = "Perdor lokacionin tim";
+    showToast("Nuk u mor lokacioni. Lejo qasjen ose shkruaj adresen.");
+  }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
+[addressInput, cityInput, salonNameInput].forEach((input) => {
+  input.addEventListener("input", updateMapLink);
+});
+
+useLocationButton.addEventListener("click", setCurrentLocation);
+updateMapLink();
+
 signupForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!signupForm.reportValidity()) return;
@@ -33,6 +80,7 @@ signupForm.addEventListener("submit", async (event) => {
   form.email = form.email.trim().toLowerCase();
   form.city = form.city.trim();
   form.phone = form.phone.trim();
+  form.imageUrl = form.imageUrl.trim();
   setSubmitState(true);
 
   const { data: authData, error: authError } = await supabaseClient.auth.signUp({
@@ -56,6 +104,7 @@ signupForm.addEventListener("submit", async (event) => {
       address: form.address || null,
       phone: form.phone,
       instagram: form.instagram || null,
+      image_url: form.imageUrl || null,
       description: form.description || null,
       status: "pending"
     })
