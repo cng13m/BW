@@ -358,6 +358,25 @@ textarea:focus {
   min-width: 0;
 }
 
+.image-preview {
+  align-items: center;
+  aspect-ratio: 16 / 9;
+  background:
+    linear-gradient(135deg, rgba(63, 11, 24, 0.14), rgba(255, 255, 255, 0.2)),
+    rgba(255, 255, 255, 0.56);
+  background-position: center;
+  background-size: cover;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  display: flex;
+  font-size: 0.86rem;
+  font-weight: 750;
+  justify-content: center;
+  min-height: 160px;
+  overflow: hidden;
+}
+
 .category-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -758,6 +777,10 @@ textarea:focus {
 .request-list {
   display: grid;
   gap: 10px;
+}
+
+.service-edit-form {
+  gap: 12px;
 }
 
 .request-item {

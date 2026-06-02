@@ -26,6 +26,27 @@ function friendlyAuthMessage(message) {
   return message;
 }
 
+function imageExtension(file) {
+  return file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+}
+
+async function uploadSalonImage(file, salonId) {
+  if (!file || !file.size) return null;
+
+  const path = `${salonId}/cover.${imageExtension(file)}`;
+  const { error } = await supabaseClient.storage
+    .from("salon-images")
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: true
+    });
+
+  if (error) throw error;
+
+  const { data } = supabaseClient.storage.from("salon-images").getPublicUrl(path);
+  return `${data.publicUrl}?v=${Date.now()}`;
+}
+
 function mapUrlForLocation() {
   const address = addressInput.value.trim();
   const city = cityInput.value.trim();
@@ -77,6 +98,7 @@ signupForm.addEventListener("submit", async (event) => {
   }
 
   const form = Object.fromEntries(new FormData(signupForm).entries());
+  const imageFile = signupForm.elements.imageFile.files[0];
   form.email = form.email.trim().toLowerCase();
   form.city = form.city.trim();
   form.phone = form.phone.trim();
@@ -115,6 +137,24 @@ signupForm.addEventListener("submit", async (event) => {
     setSubmitState(false);
     showToast(salonError?.message || "Llogaria u krijua, por salloni nuk u ruajt.");
     return;
+  }
+
+  if (imageFile) {
+    try {
+      const imageUrl = await uploadSalonImage(imageFile, salon.id);
+      if (imageUrl) {
+        const { error: imageError } = await supabaseClient
+          .from("salons")
+          .update({ image_url: imageUrl })
+          .eq("id", salon.id);
+
+        if (imageError) throw imageError;
+      }
+    } catch (error) {
+      setSubmitState(false);
+      showToast(`Llogaria u krijua, por fotoja nuk u ngarkua: ${error.message}`);
+      return;
+    }
   }
 
   const { error: linkError } = await supabaseClient.from("salon_users").insert({
