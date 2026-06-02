@@ -312,6 +312,11 @@ function serviceNames(salon) {
   return salon.services.map((service) => service.name).join(", ");
 }
 
+function googleMapsUrl(salon) {
+  const location = [salon.name, salon.area, salon.city, "Kosovo"].filter(Boolean).join(", ");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+}
+
 function renderCategories() {
   elements.categoryTabs.innerHTML = categories.map((category) => `
     <button class="chip ${state.category === category ? "is-active" : ""}" type="button" data-category="${category}">
@@ -367,16 +372,21 @@ function renderSalons() {
         <div class="salon-title-row">
           <div>
             <h3>${escapeHtml(salon.name)}</h3>
-            <div class="meta-line">${escapeHtml(categoryLabels[salon.category] || salon.category)} &middot; ${escapeHtml(salon.area)}, ${escapeHtml(salon.city)}</div>
+            <div class="meta-line">${escapeHtml(categoryLabels[salon.category] || salon.category)}</div>
           </div>
-          <div class="rating">&#9733; ${salon.rating}</div>
+          <div class="rating"><span>&#9733;</span> ${salon.rating}</div>
         </div>
-        <div class="meta-line">${salon.services.length ? `Prej ${euro(minimumPrice(salon))}` : "Sherbimet po shtohen"} &middot; pergjigjet per ${salon.responseMinutes} min</div>
+        <div class="location-line">${escapeHtml(salon.area)}, ${escapeHtml(salon.city)}</div>
+        <div class="salon-facts">
+          <span>${salon.services.length ? `Prej ${euro(minimumPrice(salon))}` : "Sherbimet po shtohen"}</span>
+          <span>${salon.responseMinutes} min pergjigje</span>
+        </div>
         <div class="service-pills">
           ${salon.services.length ? salon.services.slice(0, 3).map((service) => `<span>${escapeHtml(service.name)}</span>`).join("") : "<span>Ende pa sherbime</span>"}
         </div>
         <div class="card-actions">
           <button class="secondary-button" type="button" data-profile="${escapeHtml(salon.id)}">Shiko profilin</button>
+          <a class="secondary-button" href="${googleMapsUrl(salon)}" target="_blank" rel="noopener">Harta</a>
           <button class="primary-button" type="button" data-book="${escapeHtml(salon.id)}">Rezervo</button>
         </div>
       </div>
@@ -412,7 +422,10 @@ function openProfile(salonId) {
           `).join("")}
         </div>
       </div>
-      <button class="primary-button" type="button" data-book="${escapeHtml(salon.id)}">Kerko termin</button>
+      <div class="card-actions profile-actions">
+        <a class="secondary-button" href="${googleMapsUrl(salon)}" target="_blank" rel="noopener">Shiko ne harte</a>
+        <button class="primary-button" type="button" data-book="${escapeHtml(salon.id)}">Kerko termin</button>
+      </div>
     </div>
   `;
   elements.profileDialog.showModal();
