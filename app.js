@@ -8,6 +8,47 @@ const categoryLabels = {
   Massage: "Masazh"
 };
 
+const kosovoCities = [
+  "Decan",
+  "Dragash",
+  "Drenas",
+  "Ferizaj",
+  "Fushe Kosova",
+  "Gjakova",
+  "Gjilan",
+  "Gracanica",
+  "Hani i Elezit",
+  "Istog",
+  "Junik",
+  "Kacanik",
+  "Kamenica",
+  "Klina",
+  "Kllokot",
+  "Leposaviq",
+  "Lipjan",
+  "Malisheva",
+  "Mamusha",
+  "Mitrovica",
+  "Mitrovica e Veriut",
+  "Novoberda",
+  "Obiliq",
+  "Partesh",
+  "Peja",
+  "Podujeva",
+  "Prishtina",
+  "Prizren",
+  "Rahovec",
+  "Ranillug",
+  "Shterpca",
+  "Shtime",
+  "Skenderaj",
+  "Suhareka",
+  "Viti",
+  "Vushtrri",
+  "Zubin Potok",
+  "Zvecan"
+];
+
 const SUPABASE_URL = "https://ymcvloitokyejqgwhjjd.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_laKxjcT7H_nI27aB1heRJA_ISO2mCk2";
 const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -279,11 +320,19 @@ function renderCategories() {
   `).join("");
 }
 
+function renderCityOptions() {
+  elements.cityFilter.innerHTML = `
+    <option value="all">Te gjitha qytetet</option>
+    ${kosovoCities.map((city) => `<option value="${escapeHtml(city)}">${escapeHtml(city)}</option>`).join("")}
+  `;
+  elements.cityFilter.value = state.city;
+}
+
 function filterSalons() {
   const query = state.search.trim().toLowerCase();
   let results = salons.filter((salon) => {
     const matchesCategory = state.category === "All" || salon.category === state.category;
-    const matchesCity = state.city === "all" || salon.city === state.city;
+    const matchesCity = state.city === "all" || salon.city?.toLowerCase() === state.city.toLowerCase();
     const matchesOpen = !state.openToday || salon.openToday;
     const matchesVerified = !state.verified || salon.verified;
     const text = `${salon.name} ${salon.category} ${salon.city} ${salon.area} ${serviceNames(salon)}`.toLowerCase();
@@ -294,6 +343,7 @@ function filterSalons() {
   results = results.sort((a, b) => {
     if (state.sort === "rating") return b.rating - a.rating;
     if (state.sort === "price") return minimumPrice(a) - minimumPrice(b);
+    if (state.sort === "reviews") return b.reviews - a.reviews;
     if (state.sort === "response") return a.responseMinutes - b.responseMinutes;
     return Number(b.verified) - Number(a.verified) || b.rating - a.rating;
   });
@@ -631,6 +681,7 @@ async function loadSupabaseData() {
 
 async function init() {
   await loadSupabaseData();
+  renderCityOptions();
   renderStats();
   renderCategories();
   renderSalons();
