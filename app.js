@@ -356,17 +356,17 @@ function renderSalons() {
         </div>
       </div>
       <div class="salon-body">
+        <div class="salon-card-kicker">${escapeHtml(categoryLabels[salon.category] || salon.category)} studio</div>
         <div class="salon-title-row">
           <div>
             <h3>${escapeHtml(salon.name)}</h3>
-            <div class="meta-line">${escapeHtml(categoryLabels[salon.category] || salon.category)}</div>
+            <div class="location-line">${escapeHtml(salon.area)}, ${escapeHtml(salon.city)}</div>
           </div>
           <div class="rating"><span>&#9733;</span> ${salon.rating}</div>
         </div>
-        <div class="location-line">${escapeHtml(salon.area)}, ${escapeHtml(salon.city)}</div>
         <div class="salon-facts">
-          <span>${salon.services.length ? `Prej ${euro(minimumPrice(salon))}` : "Sherbimet po shtohen"}</span>
-          <span>${salon.responseMinutes} min pergjigje</span>
+          <span><small>Prej</small>${salon.services.length ? euro(minimumPrice(salon)) : "Se shpejti"}</span>
+          <span><small>Pergjigje</small>${salon.responseMinutes} min</span>
         </div>
         <div class="service-pills">
           ${salon.services.length ? salon.services.slice(0, 3).map((service) => `<span>${escapeHtml(service.name)}</span>`).join("") : "<span>Ende pa sherbime</span>"}

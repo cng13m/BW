@@ -6,8 +6,11 @@
   --soft: #eee6da;
   --soft-warm: #f7efe4;
   --cream-glass: rgba(255, 252, 247, 0.78);
-  --rose: #a9254d;
-  --rose-dark: #741833;
+  --rose: #9f1f42;
+  --rose-dark: #5b1027;
+  --red-wine: #6f1428;
+  --red-wine-deep: #3f0b18;
+  --red-wine-soft: rgba(111, 20, 40, 0.1);
   --plum: #2b1524;
   --espresso: #31251f;
   --mint: #0a7f74;
@@ -478,36 +481,53 @@ textarea:focus {
 
 .salon-grid {
   display: grid;
-  gap: 18px;
+  gap: 22px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .salon-card {
-  background: rgba(255, 252, 247, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  background:
+    linear-gradient(180deg, #fffdf9, #fbf4eb),
+    rgba(255, 252, 247, 0.9);
+  border: 1px solid rgba(63, 11, 24, 0.14);
   border-radius: 8px;
   display: grid;
   overflow: hidden;
-  box-shadow: var(--shadow-tight);
+  padding: 10px;
+  position: relative;
+  box-shadow: 0 18px 45px rgba(63, 11, 24, 0.1);
   transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
+.salon-card::before {
+  background: linear-gradient(180deg, var(--red-wine-deep), var(--red-wine));
+  content: "";
+  left: 0;
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  width: 3px;
+}
+
 .salon-card:hover {
-  border-color: rgba(169, 37, 77, 0.3);
-  box-shadow: var(--shadow-soft);
-  transform: translateY(-3px);
+  border-color: rgba(111, 20, 40, 0.34);
+  box-shadow: 0 28px 70px rgba(63, 11, 24, 0.16);
+  transform: translateY(-4px);
 }
 
 .salon-media {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 9.5;
   background-color: #dce2e8;
   background-position: center;
   background-size: cover;
+  border-radius: 6px;
+  overflow: hidden;
   position: relative;
 }
 
 .salon-media::after {
-  background: linear-gradient(180deg, rgba(22, 25, 35, 0.02), rgba(22, 25, 35, 0.22));
+  background:
+    linear-gradient(180deg, rgba(22, 25, 35, 0.02) 35%, rgba(63, 11, 24, 0.42) 100%);
   content: "";
   inset: 0;
   position: absolute;
@@ -525,10 +545,10 @@ textarea:focus {
 }
 
 .badge {
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.62);
+  background: rgba(255, 250, 244, 0.94);
+  border: 1px solid rgba(111, 20, 40, 0.18);
   border-radius: 999px;
-  color: var(--ink);
+  color: var(--red-wine-deep);
   font-size: 0.76rem;
   font-weight: 800;
   box-shadow: 0 8px 20px rgba(22, 25, 35, 0.12);
@@ -536,9 +556,18 @@ textarea:focus {
 }
 
 .salon-body {
+  border-top: 3px solid var(--red-wine);
   display: grid;
-  gap: 12px;
-  padding: 18px;
+  gap: 14px;
+  padding: 18px 10px 8px;
+}
+
+.salon-card-kicker {
+  color: var(--red-wine);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
 .salon-title-row {
@@ -549,25 +578,30 @@ textarea:focus {
 }
 
 .salon-title-row h3 {
-  margin-bottom: 4px;
-  font-size: 1.08rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.05;
+  margin-bottom: 8px;
 }
 
 .rating {
   align-items: center;
-  background: #fff8e7;
-  border: 1px solid #f0ddb4;
+  background: #fffaf0;
+  border: 1px solid rgba(183, 121, 31, 0.28);
   border-radius: 999px;
-  color: #7a4f05;
+  color: var(--red-wine-deep);
   display: inline-flex;
   gap: 4px;
-  font-weight: 900;
-  padding: 6px 9px;
+  font-size: 0.82rem;
+  font-weight: 850;
+  padding: 7px 10px;
   white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(63, 11, 24, 0.08);
 }
 
 .rating span {
-  color: var(--gold);
+  color: #f4c56f;
 }
 
 .meta-line {
@@ -576,25 +610,39 @@ textarea:focus {
 }
 
 .location-line {
-  color: var(--ink);
-  font-size: 0.94rem;
-  font-weight: 760;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 650;
 }
 
 .salon-facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  border-bottom: 1px solid rgba(91, 16, 39, 0.12);
+  border-top: 1px solid rgba(91, 16, 39, 0.12);
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(2, 1fr);
+  padding: 10px 0;
 }
 
 .salon-facts span {
-  background: rgba(247, 239, 228, 0.82);
-  border: 1px solid rgba(232, 222, 211, 0.8);
-  border-radius: 999px;
-  color: #5d4b3d;
-  font-size: 0.8rem;
-  font-weight: 800;
-  padding: 7px 10px;
+  color: var(--red-wine-deep);
+  display: grid;
+  font-size: 1rem;
+  font-weight: 850;
+  gap: 2px;
+  line-height: 1.15;
+}
+
+.salon-facts span + span {
+  border-left: 1px solid rgba(91, 16, 39, 0.12);
+  padding-left: 14px;
+}
+
+.salon-facts small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+  text-transform: uppercase;
 }
 
 .service-pills {
@@ -604,12 +652,13 @@ textarea:focus {
 }
 
 .service-pills span {
-  background: rgba(255, 255, 255, 0.58);
-  border: 1px solid var(--line);
+  background: transparent;
+  border: 1px solid rgba(91, 16, 39, 0.16);
   border-radius: 999px;
-  color: var(--muted);
-  font-size: 0.8rem;
-  padding: 7px 9px;
+  color: #5d4b3d;
+  font-size: 0.76rem;
+  font-weight: 720;
+  padding: 7px 10px;
 }
 
 .card-actions {
@@ -998,8 +1047,18 @@ button:disabled,
 
 .card-actions .primary-button,
 .profile-actions .primary-button {
-  --btn-pad: 0.88em 1.45em;
+  --btn-bg: var(--red-wine);
+  --btn-pad: 0.92em 1.45em;
   --btn-size: 0.84rem;
+}
+
+.salon-card .primary-button::after,
+.salon-card .secondary-button::after {
+  display: none;
+}
+
+.salon-card .primary-button {
+  box-shadow: 0 14px 28px rgba(111, 20, 40, 0.22);
 }
 
 .mini-button {
