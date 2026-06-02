@@ -20,9 +20,6 @@
         <a class="secondary-button nav-link desktop-link" href="signup.html">Regjistro sallon</a>
         <a class="secondary-button nav-link desktop-link" href="login.html">Kycu</a>
         <a class="secondary-button nav-link desktop-link" href="dashboard.html">Dashboard</a>
-        <button class="icon-button" type="button" data-view="admin" aria-label="Hap adminin" title="Admin">
-          <span aria-hidden="true">&#9776;</span>
-        </button>
       </nav>
     </header>
 
@@ -107,47 +104,6 @@
           </div>
           <div class="salon-grid" id="salonGrid"></div>
           <p class="empty-state" id="emptyState" hidden>Nuk u gjet asnje sallon. Provo nje qytet, kerkim ose kategori tjeter.</p>
-        </section>
-
-        <section class="admin-view" aria-labelledby="admin-title">
-          <div class="section-heading">
-            <div>
-              <p class="kicker">Operator</p>
-              <h2 id="admin-title">Kerkesat per rezervim</h2>
-            </div>
-          </div>
-          <div class="admin-grid">
-            <form class="admin-card" id="quickSalonForm">
-              <h3>Shto nje kontakt salloni</h3>
-              <label>
-                Emri i sallonit
-                <input required name="name" placeholder="Shembull Beauty Studio">
-              </label>
-              <label>
-                Telefoni ose Instagrami
-                <input required name="contact" placeholder="+383... ose @salloni">
-              </label>
-              <label>
-                Kategoria
-                <select name="category">
-                  <option>Floke</option>
-                  <option>Berber</option>
-                  <option>Thonj</option>
-                  <option>Kujdes fytyre</option>
-                  <option>Masazh</option>
-                </select>
-              </label>
-              <button class="primary-button" type="submit">Ruaj kontaktin</button>
-            </form>
-            <div class="admin-card">
-              <h3>Kerkesat</h3>
-              <div class="request-list" id="requestList"></div>
-            </div>
-            <div class="admin-card">
-              <h3>Kontaktet e salloneve</h3>
-              <div class="request-list" id="leadList"></div>
-            </div>
-          </div>
         </section>
       </section>
     </main>

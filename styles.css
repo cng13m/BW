@@ -676,23 +676,6 @@ textarea:focus {
   box-shadow: var(--shadow-tight);
 }
 
-.admin-view {
-  display: none;
-}
-
-.app-layout[data-current-view="admin"] .browse-view,
-.app-layout[data-current-view="admin"] .filters {
-  display: none;
-}
-
-.app-layout[data-current-view="admin"] {
-  grid-template-columns: 1fr;
-}
-
-.app-layout[data-current-view="admin"] .admin-view {
-  display: block;
-}
-
 .admin-grid {
   display: grid;
   gap: 16px;

@@ -208,9 +208,6 @@ const elements = {
   bookingForm: document.querySelector("#bookingForm"),
   bookingTitle: document.querySelector("#bookingTitle"),
   bookingSubtitle: document.querySelector("#bookingSubtitle"),
-  requestList: document.querySelector("#requestList"),
-  quickSalonForm: document.querySelector("#quickSalonForm"),
-  leadList: document.querySelector("#leadList"),
   toast: document.querySelector("#toast")
 };
 
@@ -238,16 +235,6 @@ function setButtonLoading(button, isLoading, loadingText) {
   }
   button.textContent = button.dataset.originalText || button.textContent;
   button.disabled = false;
-}
-
-function statusLabel(status) {
-  const labels = {
-    pending: "Ne pritje",
-    confirmed: "Konfirmuar",
-    rejected: "Refuzuar",
-    completed: "Perfunduar"
-  };
-  return labels[status] || "Ne pritje";
 }
 
 function storedRequests() {
@@ -456,72 +443,10 @@ function openBooking(salonId) {
   elements.bookingDialog.showModal();
 }
 
-function renderRequests() {
-  const requests = storedRequests();
-  if (!requests.length) {
-    elements.requestList.innerHTML = '<p class="meta-line">Ende nuk ka kerkesa per rezervim. Kerkesat test shfaqen ketu pasi klienti dergon formularin.</p>';
-    return;
-  }
-
-  elements.requestList.innerHTML = requests.map((request) => `
-    <div class="request-item" data-request-id="${escapeHtml(request.id)}">
-      <div class="request-topline">
-        <strong>${escapeHtml(request.customerName)} ${escapeHtml(request.customerSurname || "")} - ${escapeHtml(request.service)}</strong>
-        <span class="status-badge status-${escapeHtml(request.status || "pending")}">${statusLabel(request.status)}</span>
-      </div>
-      <small>${escapeHtml(request.salonName)}</small>
-      <small>${escapeHtml(request.date)} ne ${escapeHtml(request.time)} - ${escapeHtml(request.phone)}</small>
-      ${request.notes ? `<small>${escapeHtml(request.notes)}</small>` : ""}
-      <div class="booking-actions">
-        <button class="mini-button confirm" type="button" data-local-status="confirmed" data-request-id="${escapeHtml(request.id)}" ${request.status === "confirmed" || request.status === "completed" ? "disabled" : ""}>Konfirmo</button>
-        <button class="mini-button reject" type="button" data-local-status="rejected" data-request-id="${escapeHtml(request.id)}" ${request.status === "rejected" || request.status === "completed" ? "disabled" : ""}>Refuzo</button>
-        <button class="mini-button complete" type="button" data-local-status="completed" data-request-id="${escapeHtml(request.id)}" ${request.status !== "confirmed" ? "disabled" : ""}>Perfundo</button>
-      </div>
-    </div>
-  `).join("");
-}
-
-function renderLeads() {
-  const leads = storage.get("bwLeads", []);
-  if (!leads.length) {
-    elements.leadList.innerHTML = '<p class="meta-line">Ende nuk ka kontakte sallonesh te ruajtura.</p>';
-    return;
-  }
-
-  elements.leadList.innerHTML = leads.map((lead) => `
-    <div class="request-item">
-      <strong>${escapeHtml(lead.name)}</strong>
-      <small>${escapeHtml(lead.category)} - ${escapeHtml(lead.contact)}</small>
-    </div>
-  `).join("");
-}
-
 function showToast(message) {
   elements.toast.textContent = message;
   elements.toast.classList.add("is-visible");
   window.setTimeout(() => elements.toast.classList.remove("is-visible"), 2600);
-}
-
-function setView(view) {
-  elements.appLayout.dataset.currentView = view;
-  document.querySelectorAll("[data-view]").forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.view === view);
-  });
-}
-
-function setInitialView() {
-  const initialView = window.location.hash === "#admin" ? "admin" : "browse";
-  setView(initialView);
-}
-
-function updateLocalRequestStatus(requestId, status) {
-  const requests = storedRequests();
-  const updatedRequests = requests.map((request) => (
-    request.id === requestId ? { ...request, status, updatedAt: new Date().toISOString() } : request
-  ));
-  storage.set("bwRequests", updatedRequests);
-  renderRequests();
-  showToast(`Kerkesa u perditesua: ${statusLabel(status)}.`);
 }
 
 function bindEvents() {
@@ -589,13 +514,6 @@ function bindEvents() {
   elements.closeProfile.addEventListener("click", () => elements.profileDialog.close());
   elements.closeBooking.addEventListener("click", () => elements.bookingDialog.close());
 
-  document.querySelectorAll("[data-view]").forEach((button) => {
-    button.addEventListener("click", () => {
-      setView(button.dataset.view);
-      document.querySelector(".app-layout").scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  });
-
   elements.bookingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!elements.bookingForm.reportValidity()) return;
@@ -650,26 +568,7 @@ function bindEvents() {
     storage.set("bwRequests", requests);
     setButtonLoading(submitButton, false);
     elements.bookingDialog.close();
-    renderRequests();
-    showToast("Kerkesa per rezervim u ruajt. Shiko Admin per ta pare.");
-  });
-
-  elements.quickSalonForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    if (!elements.quickSalonForm.reportValidity()) return;
-    const lead = Object.fromEntries(new FormData(elements.quickSalonForm).entries());
-    const leads = storage.get("bwLeads", []);
-    leads.unshift({ ...lead, createdAt: new Date().toISOString() });
-    storage.set("bwLeads", leads);
-    elements.quickSalonForm.reset();
-    renderLeads();
-    showToast("Kontakti i sallonit u ruajt.");
-  });
-
-  elements.requestList.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-local-status]");
-    if (!button) return;
-    updateLocalRequestStatus(button.dataset.requestId, button.dataset.localStatus);
+    showToast("Kerkesa per rezervim u dergua.");
   });
 }
 
@@ -698,9 +597,6 @@ async function init() {
   renderStats();
   renderCategories();
   renderSalons();
-  renderRequests();
-  renderLeads();
-  setInitialView();
   bindEvents();
 }
 
