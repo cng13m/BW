@@ -1,10 +1,10 @@
 :root {
   --ink: #161923;
   --muted: #69707d;
-  --line: #e2e6ec;
+  --line: #e8ded3;
   --panel: #ffffff;
-  --soft: #f5f3ef;
-  --soft-warm: #fbf4ee;
+  --soft: #ead6bf;
+  --soft-warm: #f6e5d2;
   --rose: #a9254d;
   --rose-dark: #741833;
   --plum: #2b1524;
@@ -28,7 +28,7 @@ html {
 body {
   margin: 0;
   background:
-    linear-gradient(180deg, #fff 0, #faf8f5 360px, var(--soft) 100%),
+    linear-gradient(180deg, #f5e7d6 0, #ead6bf 420px, #e3ccb1 100%),
     var(--soft);
   color: var(--ink);
   overflow-x: hidden;
