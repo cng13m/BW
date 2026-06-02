@@ -1,10 +1,10 @@
 :root {
   --ink: #161923;
   --muted: #69707d;
-  --line: #e8ded3;
+  --line: #e4dbcf;
   --panel: #ffffff;
-  --soft: #ead6bf;
-  --soft-warm: #f6e5d2;
+  --soft: #eee6da;
+  --soft-warm: #f7efe4;
   --rose: #a9254d;
   --rose-dark: #741833;
   --plum: #2b1524;
@@ -28,7 +28,7 @@ html {
 body {
   margin: 0;
   background:
-    linear-gradient(180deg, #f5e7d6 0, #ead6bf 420px, #e3ccb1 100%),
+    linear-gradient(180deg, #f4eee5 0, #eee6da 420px, #e9dfd0 100%),
     var(--soft);
   color: var(--ink);
   overflow-x: hidden;
@@ -55,7 +55,7 @@ textarea {
 
 .topbar {
   align-items: center;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(238, 230, 218, 0.94);
   border-bottom: 1px solid var(--line);
   display: flex;
   gap: 16px;
