@@ -691,51 +691,84 @@ button,
 .icon-button,
 .close-button {
   align-items: center;
-  background-color: transparent;
+  background-color: var(--btn-bg, #fff);
   border: 0;
-  color: var(--button-ink, var(--ink));
+  border-radius: 6em;
+  color: var(--btn-ink, #000);
   cursor: pointer;
   display: inline-flex;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: var(--button-size, 0.88rem);
-  font-weight: 800;
+  font-family: inherit;
+  font-size: var(--btn-size, 17px);
+  font-weight: 500;
+  height: auto;
   justify-content: center;
   line-height: 1.5;
+  min-height: auto;
   outline: 0;
-  padding: var(--button-pad, 0.85rem 0.95rem);
+  padding: var(--btn-pad, 1em 2.5em);
   position: relative;
   text-decoration: none;
   text-transform: uppercase;
+  transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, color 200ms ease;
+  width: auto;
+  z-index: 0;
 }
 
-button::before,
-.primary-button::before,
-.secondary-button::before,
-.text-button::before,
-.chip::before,
-.mini-button::before,
-.icon-button::before,
-.close-button::before {
-  background-color: var(--button-line, currentColor);
+button::after,
+.primary-button::after,
+.secondary-button::after,
+.text-button::after,
+.chip::after,
+.mini-button::after,
+.icon-button::after,
+.close-button::after {
+  background-color: var(--btn-bg, #fff);
+  border-radius: 100px;
   content: "";
   display: inline-block;
-  flex: 0 0 auto;
-  height: 1px;
-  margin-right: 0;
-  transition: width 420ms cubic-bezier(0.25, 0.8, 0.25, 1), margin-right 420ms cubic-bezier(0.25, 0.8, 0.25, 1);
-  width: 0;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transition: transform 400ms ease, opacity 400ms ease;
+  width: 100%;
+  z-index: -1;
 }
 
-button:hover::before,
-.primary-button:hover::before,
-.secondary-button:hover::before,
-.text-button:hover::before,
-.chip:hover::before,
-.mini-button:hover::before,
-.icon-button:hover::before,
-.close-button:hover::before {
-  margin-right: 10px;
-  width: 3rem;
+button:hover,
+.primary-button:hover,
+.secondary-button:hover,
+.text-button:hover,
+.chip:hover,
+.mini-button:hover,
+.icon-button:hover,
+.close-button:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+}
+
+button:active,
+.primary-button:active,
+.secondary-button:active,
+.text-button:active,
+.chip:active,
+.mini-button:active,
+.icon-button:active,
+.close-button:active {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+button:hover::after,
+.primary-button:hover::after,
+.secondary-button:hover::after,
+.text-button:hover::after,
+.chip:hover::after,
+.mini-button:hover::after,
+.icon-button:hover::after,
+.close-button:hover::after {
+  opacity: 0;
+  transform: scaleX(1.4) scaleY(1.6);
 }
 
 .primary-button,
@@ -749,7 +782,8 @@ button:hover::before,
 }
 
 .primary-button {
-  --button-ink: var(--plum);
+  --btn-bg: #fff;
+  --btn-ink: #000;
 }
 
 .secondary-button,
@@ -758,13 +792,15 @@ button:hover::before,
 .text-button,
 .icon-button,
 .close-button {
-  --button-ink: var(--ink);
+  --btn-bg: #fff;
+  --btn-ink: #000;
 }
 
 .chip.is-active,
 .icon-button.is-active {
-  --button-ink: var(--rose);
-  background-color: transparent;
+  --btn-bg: #fff;
+  --btn-ink: var(--rose);
+  background-color: #fff;
   color: var(--rose);
 }
 
@@ -782,9 +818,8 @@ button:hover::before,
 .mini-button:hover,
 .icon-button:hover,
 .close-button:hover {
-  background-color: transparent;
+  background-color: #fff;
   border-color: transparent;
-  box-shadow: none;
 }
 
 button:disabled,
@@ -833,6 +868,26 @@ button:disabled,
 .mini-button.complete {
   background-color: transparent;
   border: 0;
+}
+
+.primary-button,
+.secondary-button,
+.text-button,
+.chip,
+.mini-button,
+.icon-button,
+.close-button {
+  background-color: var(--btn-bg, #fff);
+  border: 0;
+  border-radius: 6em;
+  color: var(--btn-ink, #000);
+  font-family: inherit;
+  font-size: var(--btn-size, 17px);
+  font-weight: 500;
+  height: auto;
+  min-height: auto;
+  padding: var(--btn-pad, 1em 2.5em);
+  width: auto;
 }
 
 dialog {
@@ -1149,8 +1204,8 @@ dialog::backdrop {
 
   .icon-button,
   .close-button {
-    height: 40px;
-    width: 40px;
+    height: auto;
+    width: auto;
   }
 
   .stats-band div,
