@@ -1,4 +1,4 @@
-@import url("https://api.fontshare.com/v2/css?f[]=gambetta@300,400,500,600,700&f[]=general-sans@400,500,600,700&display=swap");
+@import url("https://api.fontshare.com/v2/css?f[]=gambetta@300,400,500,600,700&f[]=alpino@400,500,600,700&display=swap");
 
 :root {
   --ink: #161923;
@@ -1714,7 +1714,7 @@ button,
 .mini-button,
 .icon-button,
 .close-button {
-  font-family: "General Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: "Alpino", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 button:hover,
