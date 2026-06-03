@@ -4,93 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Regjistro sallonin - Bukuri</title>
-    <link rel="stylesheet" href="styles.css">
   </head>
-  <body>
-    <header class="topbar">
-      <a class="brand" href="index.html" aria-label="Faqja kryesore Bukuri">
-        <span class="brand-mark">B</span>
-        <span>
-          <strong>Bukuri</strong>
-          <small>Per sallone</small>
-        </span>
-      </a>
-      <nav class="nav-actions" aria-label="Navigimi kryesor">
-        <a class="secondary-button nav-link" href="index.html">Sallonet</a>
-        <a class="secondary-button nav-link" href="login.html">Kycu</a>
-      </nav>
-    </header>
-
-    <main class="auth-page">
-      <section class="auth-copy">
-        <p class="kicker">Per pronare sallonesh</p>
-        <h1>Hap profilin e sallonit tend.</h1>
-        <p>Regjistrohu, shto sherbimet dhe prano kerkesa per termine nga klientet ne Kosove.</p>
-      </section>
-
-      <form class="auth-card" id="signupForm">
-        <h2>Regjistro sallonin</h2>
-        <label>
-          Emri i pronarit
-          <input required name="ownerName" autocomplete="name" placeholder="Emri dhe mbiemri">
-        </label>
-        <label>
-          Email
-          <input required name="email" type="email" autocomplete="email" placeholder="email@salloni.com">
-        </label>
-        <label>
-          Fjalekalimi
-          <input required name="password" type="password" autocomplete="new-password" minlength="6" placeholder="Minimum 6 karaktere">
-        </label>
-        <p class="form-note">Perdor nje email qe mund ta hapesh, sepse mund te kerkohet konfirmim nga Supabase.</p>
-        <label>
-          Emri i sallonit
-          <input required name="salonName" placeholder="Emri i sallonit">
-        </label>
-        <div class="form-row">
-          <label>
-            Qyteti
-            <input required name="city" placeholder="Prishtina">
-          </label>
-          <label>
-            Telefoni
-            <input required name="phone" type="tel" autocomplete="tel" inputmode="tel" minlength="7" placeholder="+383...">
-          </label>
-        </div>
-        <label>
-          Adresa
-          <input name="address" id="addressInput" placeholder="Lagjja, rruga ose perdor pinin">
-        </label>
-        <div class="map-tools" aria-label="Veglat e lokacionit">
-          <button class="secondary-button" type="button" id="useLocationButton">Perdor lokacionin tim</button>
-          <a class="secondary-button" id="previewMapLink" href="https://www.google.com/maps" target="_blank" rel="noopener">Kontrollo ne harte</a>
-        </div>
-        <p class="form-note" id="mapHelp">Mund te shkruash adresen ose te ruash pinin aktual. Klientet do ta hapin lokacionin ne Google Maps.</p>
-        <label>
-          Instagram
-          <input name="instagram" placeholder="@salloni">
-        </label>
-        <label>
-          Foto e sallonit
-          <input name="imageFile" type="file" accept="image/*">
-        </label>
-        <p class="form-note">Lejohet vetem nje foto kryesore. Per me shume foto, klientet mund te shohin Instagramin.</p>
-        <label>
-          Ose link i fotos
-          <input name="imageUrl" type="url" placeholder="https://...">
-        </label>
-        <label>
-          Pershkrimi
-          <textarea name="description" rows="3" placeholder="P.sh. Sallon flokesh per femra ne Prishtine"></textarea>
-        </label>
-        <button class="primary-button" type="submit">Krijo llogarine</button>
-        <p class="form-note">Pas regjistrimit hapet dashboardi ku mund te shtosh sherbime. Ke llogari? <a href="login.html">Kycu ketu</a>.</p>
-      </form>
-    </main>
-
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="signup.js"></script>
+  <body data-page="signup">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
