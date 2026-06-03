@@ -306,29 +306,29 @@ function HomePage() {
 
   return (
     <>
-      <Header context="Beauty booking" />
+      <Header context="Rezervime bukurie" />
       <main id="top">
         <section className="search-panel" aria-labelledby="page-title">
           <LightRays raysOrigin="top-center" raysColor="#ffffff" raysSpeed={0.25} lightSpread={0.7} rayLength={1.1} fadeDistance={0.9} saturation={0.35} noiseAmount={0.02} distortion={0.01} />
           <div className="search-copy">
-            <p className="kicker">Prishtina MVP</p>
-            <h1 id="page-title">Book beauty and wellness appointments near you.</h1>
-            <p>Find barbers, nails, hair, skincare, lashes, and massage services with clear prices and quick booking requests.</p>
+            <p className="kicker">Bukuri Kosove</p>
+            <h1 id="page-title">Rezervo termine bukurie afer teje.</h1>
+            <p>Gjej berbere, thonj, floke, kujdes fytyre, qerpike dhe masazhe me cmime te qarta dhe kerkesa te shpejta per rezervim.</p>
             <div className="hero-proof" aria-label="Avantazhet">
-              <span>Verified salons</span>
-              <span>Clear pricing</span>
-              <span>Map locations</span>
+              <span>Sallone te verifikuara</span>
+              <span>Cmime te qarta</span>
+              <span>Lokacion ne harte</span>
             </div>
           </div>
           <form className="search-box">
             <div className="search-box-head">
-              <p className="kicker">Search</p>
+              <p className="kicker">Kerko</p>
             </div>
             <label>
               <div className="search-row">
-                <input type="search" value={filters.search} onChange={(event) => setFilter("search", event.target.value)} placeholder="Salon, service, or area" />
+                <input type="search" value={filters.search} onChange={(event) => setFilter("search", event.target.value)} placeholder="Sallon, sherbim ose lagje" />
                 <select value={filters.city} onChange={(event) => setFilter("city", event.target.value)} aria-label="Qyteti">
-                  <option value="all">All cities</option>
+                  <option value="all">Te gjitha qytetet</option>
                   {kosovoCities.map((city) => <option key={city} value={city}>{city}</option>)}
                 </select>
               </div>
@@ -340,47 +340,47 @@ function HomePage() {
                 </button>
               ))}
             </div>
-            <p className="form-note">Search by salon name, service, city, or neighborhood.</p>
+            <p className="form-note">Kerko sipas emrit te sallonit, sherbimit, qytetit ose lagjes.</p>
           </form>
         </section>
 
         <section className="stats-band" aria-label="Statistikat e platformes">
-          <div><strong>{salons.length}</strong><span>salons</span></div>
-          <div><strong>{salons.reduce((total, salon) => total + salon.services.length, 0)}</strong><span>services</span></div>
-          <div><strong>1 min</strong><span>request</span></div>
+          <div><strong>{salons.length}</strong><span>sallone</span></div>
+          <div><strong>{salons.reduce((total, salon) => total + salon.services.length, 0)}</strong><span>sherbime</span></div>
+          <div><strong>1 min</strong><span>kerkese</span></div>
         </section>
 
         <section className="app-layout">
           <aside className="filters" aria-label="Filtrat">
             <div className="filter-head">
-              <h2>Filters</h2>
-              <button className="text-button" type="button" onClick={resetFilters}>Reset</button>
+              <h2>Filtrat</h2>
+              <button className="text-button" type="button" onClick={resetFilters}>Pastro</button>
             </div>
-            <label>Sort by
+            <label>Rendit sipas
               <select value={filters.sort} onChange={(event) => setFilter("sort", event.target.value)}>
-                <option value="recommended">Recommended</option>
-                <option value="price">Cheapest</option>
-                <option value="rating">Most stars</option>
-                <option value="reviews">Most reviewed</option>
-                <option value="response">Fastest response</option>
+                <option value="recommended">Te rekomanduara</option>
+                <option value="price">Me te lirat</option>
+                <option value="rating">Me shume yje</option>
+                <option value="reviews">Me shume vleresime</option>
+                <option value="response">Pergjigja me e shpejte</option>
               </select>
             </label>
-            <label className="toggle-row"><input type="checkbox" checked={filters.openToday} onChange={(event) => setFilter("openToday", event.target.checked)} /><span>Open today</span></label>
-            <label className="toggle-row"><input type="checkbox" checked={filters.verified} onChange={(event) => setFilter("verified", event.target.checked)} /><span>Verified only</span></label>
+            <label className="toggle-row"><input type="checkbox" checked={filters.openToday} onChange={(event) => setFilter("openToday", event.target.checked)} /><span>Hapur sot</span></label>
+            <label className="toggle-row"><input type="checkbox" checked={filters.verified} onChange={(event) => setFilter("verified", event.target.checked)} /><span>Vetem te verifikuara</span></label>
           </aside>
 
           <section className="browse-view" aria-labelledby="salons-title">
             <div className="section-heading">
               <div>
-                <p className="kicker">Browse</p>
-                <h2 id="salons-title">Available salons</h2>
+                <p className="kicker">Shfleto</p>
+                <h2 id="salons-title">Sallonet e disponueshme</h2>
               </div>
-              <span className="result-count">{results.length} results</span>
+              <span className="result-count">{results.length} rezultate</span>
             </div>
             <div className="salon-grid">
               {results.map((salon) => <SalonCard key={salon.id} salon={salon} onProfile={setSelectedProfile} onBook={setBookingSalon} />)}
             </div>
-            {!results.length && <p className="empty-state">No salons found. Try another city, search, or category.</p>}
+            {!results.length && <p className="empty-state">Nuk u gjet asnje sallon. Provo nje qytet, kerkim ose kategori tjeter.</p>}
           </section>
         </section>
       </main>
@@ -397,8 +397,8 @@ function SalonCard({ salon, onProfile, onBook }) {
     <article className="salon-card">
       <div className="salon-media" style={{ backgroundImage: `url("${salon.image}")` }}>
         <div className="badge-row">
-          {salon.verified && <span className="badge">Verified</span>}
-          <span className="badge">{salon.openToday ? "Open today" : "Closed today"}</span>
+          {salon.verified && <span className="badge">Verifikuar</span>}
+          <span className="badge">{salon.openToday ? "Hapur sot" : "Mbyllur sot"}</span>
         </div>
       </div>
       <div className="salon-body">
@@ -411,16 +411,16 @@ function SalonCard({ salon, onProfile, onBook }) {
           <div className="rating"><span>*</span> {salon.rating.toFixed(1)}</div>
         </div>
         <div className="salon-facts">
-          <span><small>From</small>{salon.services.length ? euro(minimumPrice(salon)) : "Soon"}</span>
-          <span><small>Reply</small>{salon.responseMinutes} min</span>
+          <span><small>Prej</small>{salon.services.length ? euro(minimumPrice(salon)) : "Se shpejti"}</span>
+          <span><small>Pergjigje</small>{salon.responseMinutes} min</span>
         </div>
         <div className="service-pills">
-          {salon.services.length ? salon.services.slice(0, 3).map((service) => <span key={service.id || service.name}>{service.name}</span>) : <span>No services yet</span>}
+          {salon.services.length ? salon.services.slice(0, 3).map((service) => <span key={service.id || service.name}>{service.name}</span>) : <span>Ende pa sherbime</span>}
         </div>
         <div className="card-actions">
-          <button className="secondary-button" type="button" onClick={() => onProfile(salon)}>View profile</button>
-          <a className="secondary-button" href={googleMapsUrl(salon)} target="_blank" rel="noopener noreferrer">Map</a>
-          <button className="primary-button" type="button" onClick={() => onBook(salon)} disabled={!salon.services.length}>Book</button>
+          <button className="secondary-button" type="button" onClick={() => onProfile(salon)}>Shiko profilin</button>
+          <a className="secondary-button" href={googleMapsUrl(salon)} target="_blank" rel="noopener noreferrer">Harta</a>
+          <button className="primary-button" type="button" onClick={() => onBook(salon)} disabled={!salon.services.length}>Rezervo</button>
         </div>
       </div>
     </article>
