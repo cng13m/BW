@@ -184,6 +184,16 @@ main {
   box-shadow: none;
 }
 
+.search-panel .light-rays-container {
+  border-radius: 8px;
+  height: min(460px, 100%);
+  left: 50%;
+  max-width: 980px;
+  opacity: 0.55;
+  top: 0;
+  transform: translateX(-50%);
+}
+
 .search-panel::before {
   display: none;
 }

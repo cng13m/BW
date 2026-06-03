@@ -6,6 +6,7 @@
     <title>Bukuri - Rezervo termine bukurie ne Kosove</title>
     <meta name="description" content="Rezervo termine bukurie dhe mireqenieje ne Kosove.">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="LightRays.css">
   </head>
   <body>
     <header class="topbar">
@@ -25,6 +26,7 @@
 
     <main id="top">
       <section class="search-panel" aria-labelledby="page-title">
+        <div class="light-rays-container" id="lightRays" aria-hidden="true"></div>
         <div class="search-copy">
           <p class="kicker">Bukuri Kosove</p>
           <h1 id="page-title">Rezervo bukuri afer teje.</h1>
@@ -160,6 +162,7 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="light-rays-init.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
