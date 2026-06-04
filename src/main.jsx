@@ -244,11 +244,16 @@ function useToast() {
   return [message, showToast];
 }
 
+function scrollToPageTop(event) {
+  event.preventDefault();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function Header({ context = "Rezervime bukurie", dashboardName }) {
   const isHome = context === "Rezervime bukurie";
   return (
     <header className="topbar">
-      <a className="brand" href="/" aria-label="Faqja kryesore Bukuri">
+      <a className="brand" href="#top" onClick={scrollToPageTop} aria-label="Kthehu ne fillim">
         <span className="brand-mark">B</span>
         <span>
           <strong>BUKURI</strong>
@@ -1058,7 +1063,7 @@ function DashboardPage() {
   return (
     <>
       <header className="topbar">
-        <a className="brand" href="/" aria-label="Faqja kryesore Bukuri">
+        <a className="brand" href="#top" onClick={scrollToPageTop} aria-label="Kthehu ne fillim">
           <span className="brand-mark">B</span>
           <span><strong>Bukuri</strong><small>{salon?.name || "Paneli"}</small></span>
         </a>
