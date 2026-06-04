@@ -1,7 +1,7 @@
+"use client";
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { createRoot } from "react-dom/client";
 import { createClient } from "@supabase/supabase-js";
-import "../styles.css";
 
 const SUPABASE_URL = "https://ymcvloitokyejqgwhjjd.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_laKxjcT7H_nI27aB1heRJA_ISO2mCk2";
@@ -163,7 +163,7 @@ function salonsPageUrl({ category = "All", city = "all", search = "" } = {}) {
   if (city && city !== "all") params.set("city", city);
   if (search.trim()) params.set("search", search.trim());
   const query = params.toString();
-  return `salons.html${query ? `?${query}` : ""}`;
+  return `/salons${query ? `?${query}` : ""}`;
 }
 
 function storedRequests() {
@@ -248,7 +248,7 @@ function Header({ context = "Rezervime bukurie", dashboardName }) {
   const isHome = context === "Rezervime bukurie";
   return (
     <header className="topbar">
-      <a className="brand" href="index.html" aria-label="Faqja kryesore Bukuri">
+      <a className="brand" href="/" aria-label="Faqja kryesore Bukuri">
         <span className="brand-mark">B</span>
         <span>
           <strong>BUKURI</strong>
@@ -259,16 +259,16 @@ function Header({ context = "Rezervime bukurie", dashboardName }) {
         {isHome ? (
           <>
             <a className="nav-link desktop-link" href="#services">Sherbime</a>
-            <a className="nav-link desktop-link" href="salons.html">Sallone</a>
-            <a className="nav-link desktop-link" href="signup.html">Per sallone</a>
-            <a className="nav-link desktop-link" href="login.html">Kycu</a>
+            <a className="nav-link desktop-link" href="/salons">Sallone</a>
+            <a className="nav-link desktop-link" href="/signup">Per sallone</a>
+            <a className="nav-link desktop-link" href="/login">Kycu</a>
             <a className="primary-button nav-cta" href="#booking">Rezervo</a>
           </>
         ) : (
           <>
-            <a className="nav-link desktop-link" href="salons.html">Sallone</a>
-            <a className="nav-link desktop-link" href="dashboard.html">Paneli</a>
-            <a className="primary-button nav-cta" href="signup.html">Per sallone</a>
+            <a className="nav-link desktop-link" href="/salons">Sallone</a>
+            <a className="nav-link desktop-link" href="/dashboard">Paneli</a>
+            <a className="primary-button nav-cta" href="/signup">Per sallone</a>
           </>
         )}
       </nav>
@@ -461,9 +461,9 @@ function HomePage() {
           <div>
             <strong>Linke te shpejta</strong>
             <a href="#services">Sherbimet</a>
-            <a href="salons.html">Sallonet</a>
-            <a href="signup.html">Regjistro sallonin</a>
-            <a href="dashboard.html">Paneli</a>
+            <a href="/salons">Sallonet</a>
+            <a href="/signup">Regjistro sallonin</a>
+            <a href="/dashboard">Paneli</a>
           </div>
           <div>
             <strong>Platforma</strong>
@@ -528,20 +528,26 @@ function SalonsPage() {
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [bookingSalon, setBookingSalon] = useState(null);
   const [loadingBooking, setLoadingBooking] = useState(false);
-  const initialFilters = useMemo(() => {
+  const [filters, setFilters] = useState({
+    category: "All",
+    search: "",
+    city: "all",
+    sort: "recommended",
+    openToday: false,
+    verified: false
+  });
+
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const category = params.get("category") || "All";
     const city = params.get("city") || "all";
-    return {
+    setFilters((current) => ({
+      ...current,
       category: categories.includes(category) ? category : "All",
       search: params.get("search") || "",
-      city,
-      sort: "recommended",
-      openToday: false,
-      verified: false
-    };
+      city
+    }));
   }, []);
-  const [filters, setFilters] = useState(initialFilters);
 
   useEffect(() => {
     async function loadSupabaseData() {
@@ -813,7 +819,7 @@ function SignupPage() {
       showToast(linkError.message);
       return;
     }
-    window.location.href = "dashboard.html";
+    window.location.href = "/dashboard";
   }
 
   return (
@@ -868,7 +874,7 @@ function LoginPage() {
       showToast(error.message.toLowerCase().includes("invalid") ? "Emaili ose fjalekalimi nuk eshte i sakte." : error.message);
       return;
     }
-    window.location.href = "dashboard.html";
+    window.location.href = "/dashboard";
   }
   return (
     <>
@@ -884,7 +890,7 @@ function LoginPage() {
           <label>Email<input required name="email" type="email" autoComplete="email" placeholder="email@salloni.com" /></label>
           <label>Fjalekalimi<input required name="password" type="password" autoComplete="current-password" placeholder="Fjalekalimi" /></label>
           <button className="primary-button" type="submit" disabled={loading}>{loading ? "Duke u kycur..." : "Kycu"}</button>
-          <p className="form-note">Nuk ke llogari? <a href="signup.html">Regjistro sallonin</a>.</p>
+          <p className="form-note">Nuk ke llogari? <a href="/signup">Regjistro sallonin</a>.</p>
         </form>
       </main>
       <Toast message={toast} />
@@ -909,7 +915,7 @@ function DashboardPage() {
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const user = sessionData.session?.user;
     if (!user) {
-      window.location.href = "login.html";
+      window.location.href = "/login";
       return;
     }
     const { data: link, error } = await supabaseClient.from("salon_users").select("salon_id, salons(*)").eq("user_id", user.id).single();
@@ -1037,7 +1043,7 @@ function DashboardPage() {
 
   async function logout() {
     await supabaseClient.auth.signOut();
-    window.location.href = "login.html";
+    window.location.href = "/login";
   }
 
   function dashboardMapUrl() {
@@ -1052,13 +1058,13 @@ function DashboardPage() {
   return (
     <>
       <header className="topbar">
-        <a className="brand" href="index.html" aria-label="Faqja kryesore Bukuri">
+        <a className="brand" href="/" aria-label="Faqja kryesore Bukuri">
           <span className="brand-mark">B</span>
           <span><strong>Bukuri</strong><small>{salon?.name || "Paneli"}</small></span>
         </a>
         <nav className="nav-actions" aria-label="Navigimi kryesor">
-          <a className="secondary-button nav-link" href="salons.html">Sallonet</a>
-          <a className="secondary-button nav-link" href="signup.html">Regjistro sallon</a>
+          <a className="secondary-button nav-link" href="/salons">Sallonet</a>
+          <a className="secondary-button nav-link" href="/signup">Regjistro sallon</a>
           <button className="icon-button" type="button" onClick={logout} aria-label="Dil" title="Dil">x</button>
         </nav>
       </header>
@@ -1156,13 +1162,4 @@ function DashboardPage() {
   );
 }
 
-function App() {
-  const page = document.body.dataset.page || "home";
-  if (page === "salons") return <SalonsPage />;
-  if (page === "signup") return <SignupPage />;
-  if (page === "login") return <LoginPage />;
-  if (page === "dashboard") return <DashboardPage />;
-  return <HomePage />;
-}
-
-createRoot(document.getElementById("root")).render(<App />);
+export { DashboardPage, HomePage, LoginPage, SalonsPage, SignupPage };
