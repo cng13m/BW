@@ -126,10 +126,10 @@ const serviceCards = [
 ];
 
 const benefitCards = [
-  ["Premium", "Sallone te zgjedhura dhe trajtime cilesore."],
+  ["Cilesi", "Sallone te zgjedhura dhe trajtime te kujdesshme."],
   ["Eksperte", "Profesioniste me vleresime dhe sherbime te qarta."],
   ["Sigurt", "Kerkesa rezervimi pa telefonata te gjata."],
-  ["Besnikeri", "Gjej vendet e preferuara dhe kthehu shpejt."]
+  ["Praktike", "Gjej vendet e preferuara dhe rezervo me shpejt."]
 ];
 
 function euro(value) {
@@ -258,7 +258,7 @@ function Header({ context = "Rezervime bukurie", dashboardName }) {
         ) : (
           <>
             <a className="nav-link desktop-link" href="index.html">Sallone</a>
-            <a className="nav-link desktop-link" href="dashboard.html">Dashboard</a>
+            <a className="nav-link desktop-link" href="dashboard.html">Paneli</a>
             <a className="primary-button nav-cta" href="signup.html">Per sallone</a>
           </>
         )}
@@ -362,40 +362,39 @@ function HomePage() {
         <section className="hero-shell" aria-labelledby="page-title">
           <div className="hero-copy">
             <p className="kicker">Bukuri. Besim. Ti.</p>
-            <h1 id="page-title">Self care starts here.</h1>
+            <h1 id="page-title">Kujdesi per veten fillon ketu.</h1>
             <p>Rezervo sallone bukurie dhe mireqenieje ne Kosove me cmime te qarta, lokacion ne harte dhe kerkese te shpejte per termin.</p>
             <div className="hero-actions">
-              <a className="primary-button" href="#booking">Book appointment</a>
-              <a className="story-button" href="#services" aria-label="Shiko sherbimet"><span>▶</span> View services</a>
+              <a className="primary-button" href="#booking">Rezervo termin</a>
+              <a className="story-button" href="#services" aria-label="Shiko sherbimet"><span>▶</span> Shiko sherbimet</a>
             </div>
           </div>
         </section>
 
         <section id="booking" className="booking-strip" aria-label="Kerko termin">
           <label>
-            <span>Select service</span>
+            <span>Zgjidh sherbimin</span>
             <select value={filters.category} onChange={(event) => setFilter("category", event.target.value)}>
               {categories.map((category) => <option key={category} value={category}>{categoryLabels[category]}</option>)}
             </select>
           </label>
           <label>
-            <span>Select city</span>
+            <span>Zgjidh qytetin</span>
             <select value={filters.city} onChange={(event) => setFilter("city", event.target.value)}>
               <option value="all">Te gjitha qytetet</option>
               {kosovoCities.map((city) => <option key={city} value={city}>{city}</option>)}
             </select>
           </label>
           <label>
-            <span>Search salon</span>
+            <span>Kerko sallon</span>
             <input type="search" value={filters.search} onChange={(event) => setFilter("search", event.target.value)} placeholder="Sallon, sherbim, lagje" />
           </label>
-          <button className="dark-button" type="button" onClick={() => document.getElementById("salons-title")?.scrollIntoView({ behavior: "smooth" })}>Book now</button>
-          <p>Fast · Easy · Secure booking</p>
+          <button className="dark-button" type="button" onClick={() => document.getElementById("salons-title")?.scrollIntoView({ behavior: "smooth" })}>Kerko termin</button>
         </section>
 
         <section id="services" className="services-section" aria-labelledby="services-title">
-          <p className="kicker">Our services</p>
-          <h2 id="services-title">Beauty. Reimagined.</h2>
+          <p className="kicker">Sherbimet</p>
+          <h2 id="services-title">Bukuri, ne menyren tende.</h2>
           <p className="section-copy">Zgjidh kategorine dhe shiko sallonet qe mund te te presin per trajtimin e radhes.</p>
           <div className="service-card-row">
             {serviceCards.map((service) => (
@@ -404,7 +403,7 @@ function HomePage() {
                 <span className="service-icon">✦</span>
                 <strong>{service.title}</strong>
                 <small>{service.text}</small>
-                <em>View more</em>
+                <em>Shiko me shume</em>
               </button>
             ))}
           </div>
@@ -413,12 +412,12 @@ function HomePage() {
         <section className="offer-band" aria-label="Oferta">
           <div className="offer-image" />
           <div>
-            <p className="kicker">Limited time</p>
-            <h2>Pamper yourself special offer</h2>
+            <p className="kicker">Oferta e momentit</p>
+            <h2>Kujdesu per veten sot</h2>
             <p>Filtro sallonet dhe dergo kerkesen tende ne me pak se nje minute.</p>
-            <a className="primary-button" href="#booking">Book now</a>
+            <a className="primary-button" href="#booking">Kerko termin</a>
           </div>
-          <div className="offer-seal"><strong>20%</strong><span>off</span></div>
+          <div className="offer-seal"><strong>20%</strong><span>zbritje</span></div>
         </section>
 
         <section className="benefit-row" aria-label="Pse Bukuri">
@@ -434,7 +433,7 @@ function HomePage() {
         <section className="browse-view" aria-labelledby="salons-title">
           <div className="section-heading">
             <div>
-              <p className="kicker">Available salons</p>
+              <p className="kicker">Sallonet</p>
               <h2 id="salons-title">Sallonet e disponueshme</h2>
             </div>
             <span className="result-count">{results.length} rezultate</span>
@@ -469,24 +468,24 @@ function HomePage() {
         <footer className="site-footer">
           <div className="footer-brand">
             <strong>BUKURI</strong>
-            <span>Beauty booking in Kosovo.</span>
+            <span>Rezervime bukurie ne Kosove.</span>
           </div>
           <div>
-            <strong>Quick links</strong>
-            <a href="#services">Services</a>
-            <a href="signup.html">Register salon</a>
-            <a href="dashboard.html">Dashboard</a>
+            <strong>Linke te shpejta</strong>
+            <a href="#services">Sherbimet</a>
+            <a href="signup.html">Regjistro sallonin</a>
+            <a href="dashboard.html">Paneli</a>
           </div>
           <div>
-            <strong>Stats</strong>
-            <span>{salons.length} salons</span>
-            <span>{salons.reduce((total, salon) => total + salon.services.length, 0)} services</span>
-            <span>1 min request</span>
+            <strong>Platforma</strong>
+            <span>{salons.length} sallone</span>
+            <span>{salons.reduce((total, salon) => total + salon.services.length, 0)} sherbime</span>
+            <span>Kerkese ne 1 min</span>
           </div>
           <div>
-            <strong>Contact</strong>
+            <strong>Kontakt</strong>
             <span>hello@bukuri.app</span>
-            <span>Prishtina, Kosovo</span>
+            <span>Prishtine, Kosove</span>
           </div>
         </footer>
       </main>
@@ -731,7 +730,7 @@ function LoginPage() {
       <Header context="Kycu" />
       <main className="auth-page compact-auth">
         <section className="auth-copy">
-          <p className="kicker">Dashboard</p>
+          <p className="kicker">Paneli</p>
           <h1>Kycu ne sallonin tend.</h1>
           <p>Menaxho profilin publik, sherbimet dhe kerkesat per rezervim.</p>
         </section>
@@ -910,7 +909,7 @@ function DashboardPage() {
       <header className="topbar">
         <a className="brand" href="index.html" aria-label="Faqja kryesore Bukuri">
           <span className="brand-mark">B</span>
-          <span><strong>Bukuri</strong><small>{salon?.name || "Dashboard"}</small></span>
+          <span><strong>Bukuri</strong><small>{salon?.name || "Paneli"}</small></span>
         </a>
         <nav className="nav-actions" aria-label="Navigimi kryesor">
           <a className="secondary-button nav-link" href="index.html">Sallonet</a>
@@ -922,7 +921,7 @@ function DashboardPage() {
         <section className="section-heading dashboard-head">
           <div>
             <p className="kicker">Salloni</p>
-            <h1>{salon?.name || "Dashboard"}</h1>
+            <h1>{salon?.name || "Paneli"}</h1>
             <p className="meta-line">{salon ? `${salon.city} - ${salon.address || "Pa adrese"} - statusi: ${statusLabel(salon.status)}` : "Duke u ngarkuar..."}</p>
           </div>
         </section>
