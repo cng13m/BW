@@ -585,6 +585,37 @@ textarea:focus {
   text-align: left;
 }
 
+.browse-page {
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.directory-hero {
+  background:
+    linear-gradient(90deg, rgba(248, 239, 229, 0.96), rgba(248, 239, 229, 0.68)),
+    url("https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1800&q=82");
+  background-position: center;
+  background-size: cover;
+  min-height: 330px;
+  padding: 74px max(18px, calc((100vw - 1140px) / 2)) 62px;
+}
+
+.directory-hero h1 {
+  font-size: clamp(3rem, 6vw, 5rem);
+  max-width: 760px;
+}
+
+.directory-hero p:not(.kicker) {
+  color: #4f463e;
+  line-height: 1.6;
+  max-width: 520px;
+}
+
+.directory-view {
+  padding-top: 44px;
+}
+
 .section-heading,
 .filter-head {
   align-items: end;
@@ -611,6 +642,10 @@ textarea:focus {
   grid-template-columns: 1fr 180px auto auto auto;
   margin-bottom: 22px;
   padding: 14px;
+}
+
+.directory-view .browse-tools {
+  grid-template-columns: minmax(260px, 1fr) 170px minmax(190px, 0.75fr) 170px auto auto auto;
 }
 
 .category-tabs {

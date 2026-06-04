@@ -157,6 +157,15 @@ function googleMapsUrl(salon) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location || "Kosovo")}`;
 }
 
+function salonsPageUrl({ category = "All", city = "all", search = "" } = {}) {
+  const params = new URLSearchParams();
+  if (category && category !== "All") params.set("category", category);
+  if (city && city !== "all") params.set("city", city);
+  if (search.trim()) params.set("search", search.trim());
+  const query = params.toString();
+  return `salons.html${query ? `?${query}` : ""}`;
+}
+
 function storedRequests() {
   try {
     return JSON.parse(localStorage.getItem("bwRequests")) || [];
@@ -250,14 +259,14 @@ function Header({ context = "Rezervime bukurie", dashboardName }) {
         {isHome ? (
           <>
             <a className="nav-link desktop-link" href="#services">Sherbime</a>
-            <a className="nav-link desktop-link" href="#salons-title">Sallone</a>
+            <a className="nav-link desktop-link" href="salons.html">Sallone</a>
             <a className="nav-link desktop-link" href="signup.html">Per sallone</a>
             <a className="nav-link desktop-link" href="login.html">Kycu</a>
             <a className="primary-button nav-cta" href="#booking">Rezervo</a>
           </>
         ) : (
           <>
-            <a className="nav-link desktop-link" href="index.html">Sallone</a>
+            <a className="nav-link desktop-link" href="salons.html">Sallone</a>
             <a className="nav-link desktop-link" href="dashboard.html">Paneli</a>
             <a className="primary-button nav-cta" href="signup.html">Per sallone</a>
           </>
@@ -281,6 +290,258 @@ function HomePage() {
     openToday: false,
     verified: false
   });
+
+  useEffect(() => {
+    async function loadSupabaseData() {
+      const { data, error } = await supabaseClient
+        .from("salons")
+        .select("*, services(*)")
+        .order("created_at", { ascending: false });
+      if (error) {
+        showToast("Po perdoren te dhena demo. Kontrollo Supabase nese sallonet reale nuk shfaqen.");
+        return;
+      }
+      if (data?.length) setSalons(data.map(normalizeSalon));
+    }
+    loadSupabaseData();
+  }, []);
+
+  const results = useMemo(() => {
+    const query = filters.search.trim().toLowerCase();
+    return salons
+      .filter((salon) => {
+        const text = `${salon.name} ${salon.category} ${salon.city} ${salon.area} ${serviceNames(salon)}`.toLowerCase();
+        return (filters.category === "All" || salon.category === filters.category)
+          && (filters.city === "all" || salon.city?.toLowerCase() === filters.city.toLowerCase())
+          && (!filters.openToday || salon.openToday)
+          && (!filters.verified || salon.verified)
+          && (!query || text.includes(query));
+      })
+      .sort((a, b) => {
+        if (filters.sort === "rating") return b.rating - a.rating;
+        if (filters.sort === "price") return minimumPrice(a) - minimumPrice(b);
+        if (filters.sort === "reviews") return b.reviews - a.reviews;
+        if (filters.sort === "response") return a.responseMinutes - b.responseMinutes;
+        return Number(b.verified) - Number(a.verified) || b.rating - a.rating;
+      });
+  }, [filters, salons]);
+
+  const setFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }));
+  const featuredSalons = results.slice(0, 3);
+
+  async function submitBooking(event) {
+    event.preventDefault();
+    const form = Object.fromEntries(new FormData(event.currentTarget).entries());
+    const salon = bookingSalon;
+    const service = salon.services.find((item) => String(item.id || item.name) === form.service);
+    setLoadingBooking(true);
+    const { error } = await supabaseClient.from("bookings").insert({
+      salon_id: salon.id,
+      service_id: service?.id || null,
+      customer_name: form.customerName,
+      customer_surname: form.customerSurname,
+      customer_phone: form.phone,
+      booking_date: form.date,
+      booking_time: form.time,
+      status: "pending",
+      notes: form.notes || null
+    });
+    setLoadingBooking(false);
+    if (error) {
+      storeFallbackRequest({
+        id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
+        ...form,
+        salonName: salon.name,
+        service: service?.name || form.service,
+        status: "pending",
+        createdAt: new Date().toISOString()
+      });
+      setBookingSalon(null);
+      showToast("Kerkesa u ruajt lokalisht. Supabase nuk e pranoi rezervimin.");
+      return;
+    }
+    setBookingSalon(null);
+    showToast("Kerkesa per rezervim u dergua.");
+  }
+
+  return (
+    <>
+      <Header context="Rezervime bukurie" />
+      <main id="top" className="home-page">
+        <section className="hero-shell" aria-labelledby="page-title">
+          <div className="hero-copy">
+            <p className="kicker">Bukuri. Besim. Ti.</p>
+            <h1 id="page-title">Kujdesi per veten fillon ketu.</h1>
+            <p>Rezervo sallone bukurie dhe mireqenieje ne Kosove me cmime te qarta, lokacion ne harte dhe kerkese te shpejte per termin.</p>
+            <div className="hero-actions">
+              <a className="primary-button" href="#booking">Rezervo termin</a>
+              <a className="story-button" href="#services" aria-label="Shiko sherbimet"><span>▶</span> Shiko sherbimet</a>
+            </div>
+          </div>
+        </section>
+
+        <section id="booking" className="booking-strip" aria-label="Kerko termin">
+          <label>
+            <span>Zgjidh sherbimin</span>
+            <select value={filters.category} onChange={(event) => setFilter("category", event.target.value)}>
+              {categories.map((category) => <option key={category} value={category}>{categoryLabels[category]}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>Zgjidh qytetin</span>
+            <select value={filters.city} onChange={(event) => setFilter("city", event.target.value)}>
+              <option value="all">Te gjitha qytetet</option>
+              {kosovoCities.map((city) => <option key={city} value={city}>{city}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>Kerko sallon</span>
+            <input type="search" value={filters.search} onChange={(event) => setFilter("search", event.target.value)} placeholder="Sallon, sherbim, lagje" />
+          </label>
+          <a className="dark-button" href={salonsPageUrl(filters)}>Kerko termin</a>
+        </section>
+
+        <section id="services" className="services-section" aria-labelledby="services-title">
+          <p className="kicker">Sherbimet</p>
+          <h2 id="services-title">Bukuri, ne menyren tende.</h2>
+          <p className="section-copy">Zgjidh kategorine dhe shiko sallonet qe mund te te presin per trajtimin e radhes.</p>
+          <div className="service-card-row">
+            {serviceCards.map((service) => (
+              <a className={`service-card ${filters.category === service.category ? "is-active" : ""}`} key={service.category} href={salonsPageUrl({ category: service.category })}>
+                <span className="service-image" style={{ backgroundImage: `url("${service.image}")` }} />
+                <span className="service-icon">✦</span>
+                <strong>{service.title}</strong>
+                <small>{service.text}</small>
+                <em>Shiko me shume</em>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <section className="offer-band" aria-label="Oferta">
+          <div className="offer-image" />
+          <div>
+            <p className="kicker">Oferta e momentit</p>
+            <h2>Kujdesu per veten sot</h2>
+            <p>Filtro sallonet dhe dergo kerkesen tende ne me pak se nje minute.</p>
+            <a className="primary-button" href={salonsPageUrl(filters)}>Kerko termin</a>
+          </div>
+          <div className="offer-seal"><strong>20%</strong><span>zbritje</span></div>
+        </section>
+
+        <section className="benefit-row" aria-label="Pse Bukuri">
+          {benefitCards.map(([title, text]) => (
+            <div key={title}>
+              <span>◇</span>
+              <strong>{title}</strong>
+              <small>{text}</small>
+            </div>
+          ))}
+        </section>
+
+        <section className="browse-view" aria-labelledby="salons-title">
+          <div className="section-heading">
+            <div>
+              <p className="kicker">Te zgjedhura</p>
+              <h2 id="salons-title">Sallone per te filluar</h2>
+            </div>
+            <a className="text-button" href={salonsPageUrl(filters)}>Shiko te gjitha</a>
+          </div>
+          <div className="salon-grid">
+            {featuredSalons.map((salon) => <SalonCard key={salon.id} salon={salon} onProfile={setSelectedProfile} onBook={setBookingSalon} />)}
+          </div>
+          {!featuredSalons.length && <p className="empty-state">Nuk u gjet asnje sallon. Provo nje qytet, kerkim ose kategori tjeter.</p>}
+        </section>
+
+        <footer className="site-footer">
+          <div className="footer-brand">
+            <strong>BUKURI</strong>
+            <span>Rezervime bukurie ne Kosove.</span>
+          </div>
+          <div>
+            <strong>Linke te shpejta</strong>
+            <a href="#services">Sherbimet</a>
+            <a href="salons.html">Sallonet</a>
+            <a href="signup.html">Regjistro sallonin</a>
+            <a href="dashboard.html">Paneli</a>
+          </div>
+          <div>
+            <strong>Platforma</strong>
+            <span>{salons.length} sallone</span>
+            <span>{salons.reduce((total, salon) => total + salon.services.length, 0)} sherbime</span>
+            <span>Kerkese ne 1 min</span>
+          </div>
+          <div>
+            <strong>Kontakt</strong>
+            <span>hello@bukuri.app</span>
+            <span>Prishtine, Kosove</span>
+          </div>
+        </footer>
+      </main>
+
+      {selectedProfile && <ProfileModal salon={selectedProfile} onClose={() => setSelectedProfile(null)} onBook={(salon) => { setSelectedProfile(null); setBookingSalon(salon); }} />}
+      {bookingSalon && <BookingModal salon={bookingSalon} loading={loadingBooking} onClose={() => setBookingSalon(null)} onSubmit={submitBooking} />}
+      <Toast message={toast} />
+    </>
+  );
+
+}
+
+function SalonCard({ salon, onProfile, onBook }) {
+  return (
+    <article className="salon-card">
+      <div className="salon-media" style={{ backgroundImage: `url("${salon.image}")` }}>
+        <div className="badge-row">
+          {salon.verified && <span className="badge">Verifikuar</span>}
+          <span className="badge">{salon.openToday ? "Hapur sot" : "Mbyllur sot"}</span>
+        </div>
+      </div>
+      <div className="salon-body">
+        <div className="salon-card-kicker">{categoryLabels[salon.category] || salon.category} studio</div>
+        <div className="salon-title-row">
+          <div>
+            <h3>{salon.name}</h3>
+            <div className="location-line">{salon.area}, {salon.city}</div>
+          </div>
+          <div className="rating"><span>★</span> {salon.rating.toFixed(1)}</div>
+        </div>
+        <div className="salon-facts">
+          <span><small>Prej</small>{salon.services.length ? euro(minimumPrice(salon)) : "Se shpejti"}</span>
+          <span><small>Pergjigje</small>{salon.responseMinutes} min</span>
+        </div>
+        <div className="service-pills">
+          {salon.services.length ? salon.services.slice(0, 3).map((service) => <span key={service.id || service.name}>{service.name}</span>) : <span>Ende pa sherbime</span>}
+        </div>
+        <div className="card-actions">
+          <button className="secondary-button" type="button" onClick={() => onProfile(salon)}>Shiko profilin</button>
+          <a className="secondary-button" href={googleMapsUrl(salon)} target="_blank" rel="noopener noreferrer">Harta</a>
+          <button className="primary-button" type="button" onClick={() => onBook(salon)} disabled={!salon.services.length}>Rezervo</button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function SalonsPage() {
+  const [toast, showToast] = useToast();
+  const [salons, setSalons] = useState(demoSalons);
+  const [selectedProfile, setSelectedProfile] = useState(null);
+  const [bookingSalon, setBookingSalon] = useState(null);
+  const [loadingBooking, setLoadingBooking] = useState(false);
+  const initialFilters = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get("category") || "All";
+    const city = params.get("city") || "all";
+    return {
+      category: categories.includes(category) ? category : "All",
+      search: params.get("search") || "",
+      city,
+      sort: "recommended",
+      openToday: false,
+      verified: false
+    };
+  }, []);
+  const [filters, setFilters] = useState(initialFilters);
 
   useEffect(() => {
     async function loadSupabaseData() {
@@ -357,83 +618,18 @@ function HomePage() {
 
   return (
     <>
-      <Header context="Rezervime bukurie" />
-      <main id="top" className="home-page">
-        <section className="hero-shell" aria-labelledby="page-title">
-          <div className="hero-copy">
-            <p className="kicker">Bukuri. Besim. Ti.</p>
-            <h1 id="page-title">Kujdesi per veten fillon ketu.</h1>
-            <p>Rezervo sallone bukurie dhe mireqenieje ne Kosove me cmime te qarta, lokacion ne harte dhe kerkese te shpejte per termin.</p>
-            <div className="hero-actions">
-              <a className="primary-button" href="#booking">Rezervo termin</a>
-              <a className="story-button" href="#services" aria-label="Shiko sherbimet"><span>▶</span> Shiko sherbimet</a>
-            </div>
-          </div>
+      <Header context="Sallonet" />
+      <main className="browse-page">
+        <section className="directory-hero" aria-labelledby="directory-title">
+          <p className="kicker">Sallonet dhe sherbimet</p>
+          <h1 id="directory-title">Gjej vendin e duhur per termin tend.</h1>
+          <p>Filtro sipas sherbimit, qytetit, cmimit ose vleresimeve dhe dergo kerkesen direkt te salloni.</p>
         </section>
 
-        <section id="booking" className="booking-strip" aria-label="Kerko termin">
-          <label>
-            <span>Zgjidh sherbimin</span>
-            <select value={filters.category} onChange={(event) => setFilter("category", event.target.value)}>
-              {categories.map((category) => <option key={category} value={category}>{categoryLabels[category]}</option>)}
-            </select>
-          </label>
-          <label>
-            <span>Zgjidh qytetin</span>
-            <select value={filters.city} onChange={(event) => setFilter("city", event.target.value)}>
-              <option value="all">Te gjitha qytetet</option>
-              {kosovoCities.map((city) => <option key={city} value={city}>{city}</option>)}
-            </select>
-          </label>
-          <label>
-            <span>Kerko sallon</span>
-            <input type="search" value={filters.search} onChange={(event) => setFilter("search", event.target.value)} placeholder="Sallon, sherbim, lagje" />
-          </label>
-          <button className="dark-button" type="button" onClick={() => document.getElementById("salons-title")?.scrollIntoView({ behavior: "smooth" })}>Kerko termin</button>
-        </section>
-
-        <section id="services" className="services-section" aria-labelledby="services-title">
-          <p className="kicker">Sherbimet</p>
-          <h2 id="services-title">Bukuri, ne menyren tende.</h2>
-          <p className="section-copy">Zgjidh kategorine dhe shiko sallonet qe mund te te presin per trajtimin e radhes.</p>
-          <div className="service-card-row">
-            {serviceCards.map((service) => (
-              <button className={`service-card ${filters.category === service.category ? "is-active" : ""}`} key={service.category} type="button" onClick={() => setFilter("category", service.category)}>
-                <span className="service-image" style={{ backgroundImage: `url("${service.image}")` }} />
-                <span className="service-icon">✦</span>
-                <strong>{service.title}</strong>
-                <small>{service.text}</small>
-                <em>Shiko me shume</em>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="offer-band" aria-label="Oferta">
-          <div className="offer-image" />
-          <div>
-            <p className="kicker">Oferta e momentit</p>
-            <h2>Kujdesu per veten sot</h2>
-            <p>Filtro sallonet dhe dergo kerkesen tende ne me pak se nje minute.</p>
-            <a className="primary-button" href="#booking">Kerko termin</a>
-          </div>
-          <div className="offer-seal"><strong>20%</strong><span>zbritje</span></div>
-        </section>
-
-        <section className="benefit-row" aria-label="Pse Bukuri">
-          {benefitCards.map(([title, text]) => (
-            <div key={title}>
-              <span>◇</span>
-              <strong>{title}</strong>
-              <small>{text}</small>
-            </div>
-          ))}
-        </section>
-
-        <section className="browse-view" aria-labelledby="salons-title">
+        <section className="browse-view directory-view" aria-labelledby="salons-title">
           <div className="section-heading">
             <div>
-              <p className="kicker">Sallonet</p>
+              <p className="kicker">Rezultatet</p>
               <h2 id="salons-title">Sallonet e disponueshme</h2>
             </div>
             <span className="result-count">{results.length} rezultate</span>
@@ -446,6 +642,15 @@ function HomePage() {
                 </button>
               ))}
             </div>
+            <label>Qyteti
+              <select value={filters.city} onChange={(event) => setFilter("city", event.target.value)}>
+                <option value="all">Te gjitha qytetet</option>
+                {kosovoCities.map((city) => <option key={city} value={city}>{city}</option>)}
+              </select>
+            </label>
+            <label>Kerko
+              <input type="search" value={filters.search} onChange={(event) => setFilter("search", event.target.value)} placeholder="Sallon, sherbim, lagje" />
+            </label>
             <label>Rendit
               <select value={filters.sort} onChange={(event) => setFilter("sort", event.target.value)}>
                 <option value="recommended">Te rekomanduara</option>
@@ -456,7 +661,7 @@ function HomePage() {
               </select>
             </label>
             <label className="toggle-row"><input type="checkbox" checked={filters.openToday} onChange={(event) => setFilter("openToday", event.target.checked)} /><span>Hapur sot</span></label>
-            <label className="toggle-row"><input type="checkbox" checked={filters.verified} onChange={(event) => setFilter("verified", event.target.checked)} /><span>Vetem te verifikuara</span></label>
+            <label className="toggle-row"><input type="checkbox" checked={filters.verified} onChange={(event) => setFilter("verified", event.target.checked)} /><span>Te verifikuara</span></label>
             <button className="text-button" type="button" onClick={resetFilters}>Pastro</button>
           </div>
           <div className="salon-grid">
@@ -464,72 +669,12 @@ function HomePage() {
           </div>
           {!results.length && <p className="empty-state">Nuk u gjet asnje sallon. Provo nje qytet, kerkim ose kategori tjeter.</p>}
         </section>
-
-        <footer className="site-footer">
-          <div className="footer-brand">
-            <strong>BUKURI</strong>
-            <span>Rezervime bukurie ne Kosove.</span>
-          </div>
-          <div>
-            <strong>Linke te shpejta</strong>
-            <a href="#services">Sherbimet</a>
-            <a href="signup.html">Regjistro sallonin</a>
-            <a href="dashboard.html">Paneli</a>
-          </div>
-          <div>
-            <strong>Platforma</strong>
-            <span>{salons.length} sallone</span>
-            <span>{salons.reduce((total, salon) => total + salon.services.length, 0)} sherbime</span>
-            <span>Kerkese ne 1 min</span>
-          </div>
-          <div>
-            <strong>Kontakt</strong>
-            <span>hello@bukuri.app</span>
-            <span>Prishtine, Kosove</span>
-          </div>
-        </footer>
       </main>
 
       {selectedProfile && <ProfileModal salon={selectedProfile} onClose={() => setSelectedProfile(null)} onBook={(salon) => { setSelectedProfile(null); setBookingSalon(salon); }} />}
       {bookingSalon && <BookingModal salon={bookingSalon} loading={loadingBooking} onClose={() => setBookingSalon(null)} onSubmit={submitBooking} />}
       <Toast message={toast} />
     </>
-  );
-
-}
-
-function SalonCard({ salon, onProfile, onBook }) {
-  return (
-    <article className="salon-card">
-      <div className="salon-media" style={{ backgroundImage: `url("${salon.image}")` }}>
-        <div className="badge-row">
-          {salon.verified && <span className="badge">Verifikuar</span>}
-          <span className="badge">{salon.openToday ? "Hapur sot" : "Mbyllur sot"}</span>
-        </div>
-      </div>
-      <div className="salon-body">
-        <div className="salon-card-kicker">{categoryLabels[salon.category] || salon.category} studio</div>
-        <div className="salon-title-row">
-          <div>
-            <h3>{salon.name}</h3>
-            <div className="location-line">{salon.area}, {salon.city}</div>
-          </div>
-          <div className="rating"><span>★</span> {salon.rating.toFixed(1)}</div>
-        </div>
-        <div className="salon-facts">
-          <span><small>Prej</small>{salon.services.length ? euro(minimumPrice(salon)) : "Se shpejti"}</span>
-          <span><small>Pergjigje</small>{salon.responseMinutes} min</span>
-        </div>
-        <div className="service-pills">
-          {salon.services.length ? salon.services.slice(0, 3).map((service) => <span key={service.id || service.name}>{service.name}</span>) : <span>Ende pa sherbime</span>}
-        </div>
-        <div className="card-actions">
-          <button className="secondary-button" type="button" onClick={() => onProfile(salon)}>Shiko profilin</button>
-          <a className="secondary-button" href={googleMapsUrl(salon)} target="_blank" rel="noopener noreferrer">Harta</a>
-          <button className="primary-button" type="button" onClick={() => onBook(salon)} disabled={!salon.services.length}>Rezervo</button>
-        </div>
-      </div>
-    </article>
   );
 }
 
@@ -912,7 +1057,7 @@ function DashboardPage() {
           <span><strong>Bukuri</strong><small>{salon?.name || "Paneli"}</small></span>
         </a>
         <nav className="nav-actions" aria-label="Navigimi kryesor">
-          <a className="secondary-button nav-link" href="index.html">Sallonet</a>
+          <a className="secondary-button nav-link" href="salons.html">Sallonet</a>
           <a className="secondary-button nav-link" href="signup.html">Regjistro sallon</a>
           <button className="icon-button" type="button" onClick={logout} aria-label="Dil" title="Dil">x</button>
         </nav>
@@ -1013,6 +1158,7 @@ function DashboardPage() {
 
 function App() {
   const page = document.body.dataset.page || "home";
+  if (page === "salons") return <SalonsPage />;
   if (page === "signup") return <SignupPage />;
   if (page === "login") return <LoginPage />;
   if (page === "dashboard") return <DashboardPage />;
