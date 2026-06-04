@@ -1,9 +1,9 @@
-import { SignupPage } from "../../src/main.jsx";
+import { CustomerSignupPage } from "../../src/main.jsx";
 
 export const metadata = {
-  title: "Regjistro sallonin"
+  title: "Krijo llogari"
 };
 
 export default function Page() {
-  return <SignupPage />;
+  return <CustomerSignupPage />;
 }

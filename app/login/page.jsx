@@ -1,7 +1,7 @@
 import { LoginPage } from "../../src/main.jsx";
 
 export const metadata = {
-  title: "Kycu"
+  title: "Kyçu"
 };
 
 export default function Page() {

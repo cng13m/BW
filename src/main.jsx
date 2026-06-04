@@ -263,17 +263,17 @@ function Header({ context = "Rezervime bukurie", dashboardName }) {
       <nav className="nav-actions" aria-label="Navigimi kryesor">
         {isHome ? (
           <>
-            <a className="nav-link desktop-link" href="#services">Sherbime</a>
             <a className="nav-link desktop-link" href="/salons">Sallone</a>
-            <a className="nav-link desktop-link" href="/signup">Per sallone</a>
-            <a className="nav-link desktop-link" href="/login">Kycu</a>
+            <a className="nav-link desktop-link" href="/for-salons">Per sallone</a>
+            <a className="nav-link desktop-link" href="/login">Kyçu</a>
             <a className="primary-button nav-cta" href="#booking">Rezervo</a>
           </>
         ) : (
           <>
             <a className="nav-link desktop-link" href="/salons">Sallone</a>
-            <a className="nav-link desktop-link" href="/dashboard">Paneli</a>
-            <a className="primary-button nav-cta" href="/signup">Per sallone</a>
+            <a className="nav-link desktop-link" href="/for-salons">Per sallone</a>
+            <a className="nav-link desktop-link" href="/login">Kyçu</a>
+            <a className="primary-button nav-cta" href="/salons">Rezervo</a>
           </>
         )}
       </nav>
@@ -467,7 +467,7 @@ function HomePage() {
             <strong>Linke te shpejta</strong>
             <a href="#services">Sherbimet</a>
             <a href="/salons">Sallonet</a>
-            <a href="/signup">Regjistro sallonin</a>
+            <a href="/for-salons">Per sallone</a>
             <a href="/dashboard">Paneli</a>
           </div>
           <div>
@@ -866,7 +866,103 @@ function SignupPage() {
   );
 }
 
+function CustomerSignupPage() {
+  const [toast, showToast] = useToast();
+  const [loading, setLoading] = useState(false);
+
+  async function submitCustomerSignup(event) {
+    event.preventDefault();
+    const form = Object.fromEntries(new FormData(event.currentTarget).entries());
+    setLoading(true);
+    const { error } = await supabaseClient.auth.signUp({
+      email: form.email.trim().toLowerCase(),
+      password: form.password,
+      options: {
+        data: {
+          first_name: form.firstName.trim(),
+          last_name: form.lastName.trim(),
+          phone: form.phone.trim(),
+          account_type: "customer"
+        }
+      }
+    });
+    setLoading(false);
+    if (error) {
+      showToast(error.message);
+      return;
+    }
+    showToast("Llogaria u krijua. Kontrollo emailin nese kerkohet konfirmim.");
+    window.setTimeout(() => {
+      window.location.href = "/salons";
+    }, 900);
+  }
+
+  return (
+    <>
+      <Header context="Kliente" />
+      <main className="auth-page compact-auth">
+        <section className="auth-copy">
+          <p className="kicker">Per kliente</p>
+          <h1>Krijo llogarine tende.</h1>
+          <p>Llogaria ndihmon sallonet te konfirmojne klientet dhe i ben rezervimet me te sigurta per te dyja palet.</p>
+        </section>
+        <form className="auth-card" onSubmit={submitCustomerSignup}>
+          <h2>Krijo llogari</h2>
+          <div className="form-row">
+            <label>Emri<input required name="firstName" autoComplete="given-name" placeholder="Emri" /></label>
+            <label>Mbiemri<input required name="lastName" autoComplete="family-name" placeholder="Mbiemri" /></label>
+          </div>
+          <label>Telefoni<input required name="phone" type="tel" autoComplete="tel" inputMode="tel" minLength="7" placeholder="+383..." /></label>
+          <label>Email<input required name="email" type="email" autoComplete="email" placeholder="email@example.com" /></label>
+          <label>Fjalekalimi<input required name="password" type="password" autoComplete="new-password" minLength="6" placeholder="Minimum 6 karaktere" /></label>
+          <button className="primary-button" type="submit" disabled={loading}>{loading ? "Duke u krijuar..." : "Krijo llogarine"}</button>
+          <p className="form-note">Ke llogari? <a href="/login">Kyçu ketu</a>.</p>
+        </form>
+      </main>
+      <Toast message={toast} />
+    </>
+  );
+}
+
 function LoginPage() {
+  const [toast, showToast] = useToast();
+  const [loading, setLoading] = useState(false);
+  async function submitLogin(event) {
+    event.preventDefault();
+    const form = Object.fromEntries(new FormData(event.currentTarget).entries());
+    setLoading(true);
+    const { error } = await supabaseClient.auth.signInWithPassword({ email: form.email.trim().toLowerCase(), password: form.password });
+    setLoading(false);
+    if (error) {
+      showToast(error.message.toLowerCase().includes("invalid") ? "Emaili ose fjalekalimi nuk eshte i sakte." : error.message);
+      return;
+    }
+    window.location.href = "/salons";
+  }
+  return (
+    <>
+      <Header context="Kliente" />
+      <main className="auth-page compact-auth">
+        <section className="auth-copy">
+          <p className="kicker">Per kliente</p>
+          <h1>Kyçu ne llogarine tende.</h1>
+          <p>Rezervo me me shume siguri, ruaj kontaktin e sakte dhe ndihmo sallonet te shmangin rezervimet false.</p>
+        </section>
+        <form className="auth-card" onSubmit={submitLogin}>
+          <h2>Kyçu</h2>
+          <label>Email<input required name="email" type="email" autoComplete="email" placeholder="email@example.com" /></label>
+          <label>Fjalekalimi<input required name="password" type="password" autoComplete="current-password" placeholder="Fjalekalimi" /></label>
+          <button className="primary-button" type="submit" disabled={loading}>{loading ? "Duke u kyçur..." : "Kyçu"}</button>
+          <p className="form-note">Nuk ke llogari? <a href="/signup">Krijo llogari</a>.</p>
+          <p className="form-note">Je pronar salloni? <a href="/salon-login">Kyçu si sallon</a>.</p>
+        </form>
+      </main>
+      <Toast message={toast} />
+    </>
+  );
+}
+
+function SalonLoginPage() {
   const [toast, showToast] = useToast();
   const [loading, setLoading] = useState(false);
   async function submitLogin(event) {
@@ -883,22 +979,44 @@ function LoginPage() {
   }
   return (
     <>
-      <Header context="Kycu" />
+      <Header context="Per sallone" />
       <main className="auth-page compact-auth">
         <section className="auth-copy">
-          <p className="kicker">Paneli</p>
-          <h1>Kycu ne sallonin tend.</h1>
+          <p className="kicker">Paneli i sallonit</p>
+          <h1>Kyçu si sallon.</h1>
           <p>Menaxho profilin publik, sherbimet dhe kerkesat per rezervim.</p>
         </section>
         <form className="auth-card" onSubmit={submitLogin}>
-          <h2>Kycu</h2>
+          <h2>Kyçu si sallon</h2>
           <label>Email<input required name="email" type="email" autoComplete="email" placeholder="email@salloni.com" /></label>
           <label>Fjalekalimi<input required name="password" type="password" autoComplete="current-password" placeholder="Fjalekalimi" /></label>
-          <button className="primary-button" type="submit" disabled={loading}>{loading ? "Duke u kycur..." : "Kycu"}</button>
-          <p className="form-note">Nuk ke llogari? <a href="/signup">Regjistro sallonin</a>.</p>
+          <button className="primary-button" type="submit" disabled={loading}>{loading ? "Duke u kyçur..." : "Kyçu si sallon"}</button>
+          <p className="form-note">Nuk ke profil salloni? <a href="/salon-signup">Regjistro sallonin</a>.</p>
         </form>
       </main>
       <Toast message={toast} />
+    </>
+  );
+}
+
+function ForSalonsPage() {
+  return (
+    <>
+      <Header context="Per sallone" />
+      <main className="auth-page compact-auth">
+        <section className="auth-copy">
+          <p className="kicker">Per pronare sallonesh</p>
+          <h1>Sill rezervimet online ne sallonin tend.</h1>
+          <p>Krijo profilin publik, shto sherbimet dhe prano kerkesa nga kliente me llogari me te besueshme.</p>
+        </section>
+        <section className="auth-card">
+          <h2>Paneli i sallonit</h2>
+          <p className="form-note">Kjo hapesire eshte vetem per sallone, berbere, spa, nail studio dhe klinika bukurie.</p>
+          <a className="primary-button" href="/salon-signup">Regjistro sallonin</a>
+          <a className="secondary-button" href="/salon-login">Kyçu si sallon</a>
+          <p className="form-note">Je klient? <a href="/login">Kyçu si klient</a>.</p>
+        </section>
+      </main>
     </>
   );
 }
@@ -920,7 +1038,7 @@ function DashboardPage() {
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const user = sessionData.session?.user;
     if (!user) {
-      window.location.href = "/login";
+      window.location.href = "/salon-login";
       return;
     }
     const { data: link, error } = await supabaseClient.from("salon_users").select("salon_id, salons(*)").eq("user_id", user.id).single();
@@ -1048,7 +1166,7 @@ function DashboardPage() {
 
   async function logout() {
     await supabaseClient.auth.signOut();
-    window.location.href = "/login";
+    window.location.href = "/salon-login";
   }
 
   function dashboardMapUrl() {
@@ -1069,7 +1187,7 @@ function DashboardPage() {
         </a>
         <nav className="nav-actions" aria-label="Navigimi kryesor">
           <a className="secondary-button nav-link" href="/salons">Sallonet</a>
-          <a className="secondary-button nav-link" href="/signup">Regjistro sallon</a>
+          <a className="secondary-button nav-link" href="/for-salons">Per sallone</a>
           <button className="icon-button" type="button" onClick={logout} aria-label="Dil" title="Dil">x</button>
         </nav>
       </header>
@@ -1167,4 +1285,13 @@ function DashboardPage() {
   );
 }
 
-export { DashboardPage, HomePage, LoginPage, SalonsPage, SignupPage };
+export {
+  CustomerSignupPage,
+  DashboardPage,
+  ForSalonsPage,
+  HomePage,
+  LoginPage,
+  SalonLoginPage,
+  SalonsPage,
+  SignupPage
+};
