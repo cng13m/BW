@@ -194,6 +194,7 @@ function normalizeSalon(row, index) {
   return {
     id: row.id,
     name: row.name,
+    status: row.status || "pending",
     category: classifySalon(row),
     city: row.city,
     area: row.address || "Kosovo",
@@ -213,6 +214,10 @@ function normalizeSalon(row, index) {
       duration: `${service.duration_minutes ?? 30} min`
     }))
   };
+}
+
+function isPublicSalon(salon) {
+  return salon?.status !== "deleted";
 }
 
 function imageExtension(file) {
@@ -309,12 +314,13 @@ function HomePage() {
       const { data, error } = await supabaseClient
         .from("salons")
         .select("*, services(*)")
+        .neq("status", "deleted")
         .order("created_at", { ascending: false });
       if (error) {
         showToast("Po perdoren te dhena demo. Kontrollo Supabase nese sallonet reale nuk shfaqen.");
         return;
       }
-      if (data?.length) setSalons(data.map(normalizeSalon));
+      setSalons((data || []).filter(isPublicSalon).map(normalizeSalon));
     }
     loadSupabaseData();
   }, []);
@@ -324,7 +330,8 @@ function HomePage() {
     return salons
       .filter((salon) => {
         const text = `${salon.name} ${salon.category} ${salon.city} ${salon.area} ${serviceNames(salon)}`.toLowerCase();
-        return (filters.category === "All" || salon.category === filters.category)
+        return isPublicSalon(salon)
+          && (filters.category === "All" || salon.category === filters.category)
           && (filters.city === "all" || salon.city?.toLowerCase() === filters.city.toLowerCase())
           && (!filters.openToday || salon.openToday)
           && (!filters.verified || salon.verified)
@@ -567,12 +574,13 @@ function SalonsPage() {
       const { data, error } = await supabaseClient
         .from("salons")
         .select("*, services(*)")
+        .neq("status", "deleted")
         .order("created_at", { ascending: false });
       if (error) {
         showToast("Po perdoren te dhena demo. Kontrollo Supabase nese sallonet reale nuk shfaqen.");
         return;
       }
-      if (data?.length) setSalons(data.map(normalizeSalon));
+      setSalons((data || []).filter(isPublicSalon).map(normalizeSalon));
     }
     loadSupabaseData();
   }, []);
@@ -582,7 +590,8 @@ function SalonsPage() {
     return salons
       .filter((salon) => {
         const text = `${salon.name} ${salon.category} ${salon.city} ${salon.area} ${serviceNames(salon)}`.toLowerCase();
-        return (filters.category === "All" || salon.category === filters.category)
+        return isPublicSalon(salon)
+          && (filters.category === "All" || salon.category === filters.category)
           && (filters.city === "all" || salon.city?.toLowerCase() === filters.city.toLowerCase())
           && (!filters.openToday || salon.openToday)
           && (!filters.verified || salon.verified)
