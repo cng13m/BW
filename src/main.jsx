@@ -251,9 +251,10 @@ function scrollToPageTop(event) {
 
 function Header({ context = "Rezervime bukurie", dashboardName }) {
   const isHome = context === "Rezervime bukurie";
+  const brandHref = isHome ? "#top" : "/";
   return (
     <header className="topbar">
-      <a className="brand" href="#top" onClick={scrollToPageTop} aria-label="Kthehu ne fillim">
+      <a className="brand" href={brandHref} onClick={isHome ? scrollToPageTop : undefined} aria-label={isHome ? "Kthehu ne fillim" : "Kthehu ne faqen kryesore"}>
         <span className="brand-mark">B</span>
         <span>
           <strong>BUKURI</strong>
@@ -653,27 +654,31 @@ function SalonsPage() {
                 </button>
               ))}
             </div>
-            <label>Qyteti
-              <select value={filters.city} onChange={(event) => setFilter("city", event.target.value)}>
-                <option value="all">Te gjitha qytetet</option>
-                {kosovoCities.map((city) => <option key={city} value={city}>{city}</option>)}
-              </select>
-            </label>
-            <label>Kerko
-              <input type="search" value={filters.search} onChange={(event) => setFilter("search", event.target.value)} placeholder="Sallon, sherbim, lagje" />
-            </label>
-            <label>Rendit
-              <select value={filters.sort} onChange={(event) => setFilter("sort", event.target.value)}>
-                <option value="recommended">Te rekomanduara</option>
-                <option value="price">Me te lirat</option>
-                <option value="rating">Me shume yje</option>
-                <option value="reviews">Me shume vleresime</option>
-                <option value="response">Pergjigja me e shpejte</option>
-              </select>
-            </label>
-            <label className="toggle-row"><input type="checkbox" checked={filters.openToday} onChange={(event) => setFilter("openToday", event.target.checked)} /><span>Hapur sot</span></label>
-            <label className="toggle-row"><input type="checkbox" checked={filters.verified} onChange={(event) => setFilter("verified", event.target.checked)} /><span>Te verifikuara</span></label>
-            <button className="text-button" type="button" onClick={resetFilters}>Pastro</button>
+            <div className="filter-fields">
+              <label>Qyteti
+                <select value={filters.city} onChange={(event) => setFilter("city", event.target.value)}>
+                  <option value="all">Te gjitha qytetet</option>
+                  {kosovoCities.map((city) => <option key={city} value={city}>{city}</option>)}
+                </select>
+              </label>
+              <label>Kerko
+                <input type="search" value={filters.search} onChange={(event) => setFilter("search", event.target.value)} placeholder="Sallon, sherbim, lagje" />
+              </label>
+              <label>Rendit
+                <select value={filters.sort} onChange={(event) => setFilter("sort", event.target.value)}>
+                  <option value="recommended">Te rekomanduara</option>
+                  <option value="price">Me te lirat</option>
+                  <option value="rating">Me shume yje</option>
+                  <option value="reviews">Me shume vleresime</option>
+                  <option value="response">Pergjigja me e shpejte</option>
+                </select>
+              </label>
+            </div>
+            <div className="filter-actions">
+              <label className="toggle-row"><input type="checkbox" checked={filters.openToday} onChange={(event) => setFilter("openToday", event.target.checked)} /><span>Hapur sot</span></label>
+              <label className="toggle-row"><input type="checkbox" checked={filters.verified} onChange={(event) => setFilter("verified", event.target.checked)} /><span>Te verifikuara</span></label>
+              <button className="text-button" type="button" onClick={resetFilters}>Pastro</button>
+            </div>
           </div>
           <div className="salon-grid">
             {results.map((salon) => <SalonCard key={salon.id} salon={salon} onProfile={setSelectedProfile} onBook={setBookingSalon} />)}
@@ -1178,32 +1183,79 @@ function DashboardPage() {
     });
   }
 
+  const pendingBookings = bookings.filter((booking) => (booking.status || "pending") === "pending").length;
+  const confirmedBookings = bookings.filter((booking) => booking.status === "confirmed").length;
+  const publicProfileScore = salon
+    ? [salon.name, salon.phone, salon.city, salon.address, salon.image_url, salon.description].filter(Boolean).length
+    : 0;
+
   return (
     <>
       <header className="topbar">
-        <a className="brand" href="#top" onClick={scrollToPageTop} aria-label="Kthehu ne fillim">
+        <a className="brand" href="/" aria-label="Kthehu ne faqen kryesore">
           <span className="brand-mark">B</span>
-          <span><strong>Bukuri</strong><small>{salon?.name || "Paneli"}</small></span>
+          <span><strong>BUKURI</strong><small>{salon?.name || "Paneli"}</small></span>
         </a>
         <nav className="nav-actions" aria-label="Navigimi kryesor">
-          <a className="secondary-button nav-link" href="/salons">Sallonet</a>
-          <a className="secondary-button nav-link" href="/for-salons">Per sallone</a>
+          <a className="nav-link desktop-link" href="/salons">Sallonet</a>
+          <a className="nav-link desktop-link" href="/for-salons">Per sallone</a>
           <button className="icon-button" type="button" onClick={logout} aria-label="Dil" title="Dil">x</button>
         </nav>
       </header>
       <main className="dashboard-page">
-        <section className="section-heading dashboard-head">
-          <div>
-            <p className="kicker">Salloni</p>
+        <section className="dashboard-head">
+          <div className="dashboard-title">
+            <p className="kicker">Paneli i sallonit</p>
             <h1>{salon?.name || "Paneli"}</h1>
-            <p className="meta-line">{salon ? `${salon.city} - ${salon.address || "Pa adrese"} - statusi: ${statusLabel(salon.status)}` : "Duke u ngarkuar..."}</p>
+            <p>{salon ? `${salon.city} - ${salon.address || "Pa adrese"} - statusi: ${statusLabel(salon.status)}` : "Duke u ngarkuar..."}</p>
           </div>
+          {salon && (
+            <div className="dashboard-hero-card">
+              <div className="dashboard-cover" style={previewUrl || salon.image_url ? { backgroundImage: `url("${previewUrl || salon.image_url}")` } : undefined}>
+                {!previewUrl && !salon.image_url && <span>Foto kryesore</span>}
+              </div>
+              <div>
+                <strong>{statusLabel(salon.status)}</strong>
+                <span>{publicProfileScore}/6 fusha profili</span>
+              </div>
+            </div>
+          )}
         </section>
         {salon && (
-          <section className="admin-grid dashboard-grid">
-            <form className="admin-card salon-profile-card" ref={profileFormRef} onSubmit={submitProfile}>
-              <h3>Profili publik</h3>
-              <p className="form-note">Perditeso emrin, kontaktin, foton, tekstin, sherbimet dhe lokacionin qe klientet shohin ne faqe.</p>
+          <>
+          <section className="dashboard-metrics" aria-label="Permbledhje e sallonit">
+            <div className="metric-card">
+              <span>Kerkesa te reja</span>
+              <strong>{pendingBookings}</strong>
+              <small>duhen kontrolluar</small>
+            </div>
+            <div className="metric-card">
+              <span>Te konfirmuara</span>
+              <strong>{confirmedBookings}</strong>
+              <small>aktive ne kalendar</small>
+            </div>
+            <div className="metric-card">
+              <span>Sherbime</span>
+              <strong>{services.length}</strong>
+              <small>ne profil publik</small>
+            </div>
+            <div className="metric-card">
+              <span>Profili</span>
+              <strong>{Math.round((publicProfileScore / 6) * 100)}%</strong>
+              <small>gati per kliente</small>
+            </div>
+          </section>
+
+          <section className="dashboard-grid">
+            <form className="admin-card salon-profile-card dashboard-profile-panel" ref={profileFormRef} onSubmit={submitProfile}>
+              <div className="card-title-row">
+                <div>
+                  <p className="kicker">Profili publik</p>
+                  <h3>Detajet qe shohin klientet</h3>
+                </div>
+                <a className="text-button" href={dashboardMapUrl()} onClick={(event) => { event.currentTarget.href = dashboardMapUrl(); }} target="_blank" rel="noopener noreferrer">Harta</a>
+              </div>
+              <p className="form-note">Perditeso kontaktin, foton, pershkrimin dhe lokacionin. Mbaje profilin te paster, te besueshem dhe te lehte per rezervim.</p>
               <label>Emri i sallonit<input required name="name" defaultValue={salon.name || ""} placeholder="Emri i sallonit" /></label>
               <div className="form-row">
                 <label>Telefoni<input required name="phone" defaultValue={salon.phone || ""} type="tel" inputMode="tel" placeholder="+383..." /></label>
@@ -1226,8 +1278,14 @@ function DashboardPage() {
               <button className="primary-button" type="submit" disabled={profileLoading}>{profileLoading ? "Duke u ruajtur..." : "Ruaj profilin"}</button>
             </form>
 
-            <form className="admin-card" onSubmit={submitService}>
-              <h3>Shto sherbim</h3>
+            <aside className="dashboard-side">
+            <form className="admin-card service-create-card" onSubmit={submitService}>
+              <div className="card-title-row">
+                <div>
+                  <p className="kicker">Katalogu</p>
+                  <h3>Shto sherbim</h3>
+                </div>
+              </div>
               <p className="form-note">Sherbimet shfaqen ne profilin publik dhe perdoren ne formularin e rezervimit.</p>
               <label>Emri i sherbimit<input required name="name" placeholder="Ngjyrosje flokesh" /></label>
               <div className="form-row">
@@ -1237,8 +1295,14 @@ function DashboardPage() {
               <button className="primary-button" type="submit">Ruaj sherbimin</button>
             </form>
 
-            <div className="admin-card">
-              <h3>Menaxho sherbimet</h3>
+            <div className="admin-card service-list-card">
+              <div className="card-title-row">
+                <div>
+                  <p className="kicker">Cmimet</p>
+                  <h3>Menaxho sherbimet</h3>
+                </div>
+                <span className="panel-count">{services.length}</span>
+              </div>
               <div className="request-list">
                 {services.length ? services.map((service) => (
                   <form className="request-item service-edit-form" key={service.id} onSubmit={(event) => updateService(event, service.id)}>
@@ -1255,9 +1319,16 @@ function DashboardPage() {
                 )) : <p className="meta-line">Ende nuk ke shtuar sherbime.</p>}
               </div>
             </div>
+            </aside>
 
-            <div className="admin-card">
-              <h3>Kerkesat per rezervim</h3>
+            <div className="admin-card bookings-panel">
+              <div className="card-title-row">
+                <div>
+                  <p className="kicker">Rezervimet</p>
+                  <h3>Kerkesat per rezervim</h3>
+                </div>
+                <span className="panel-count">{bookings.length}</span>
+              </div>
               <div className="request-list">
                 {bookings.length ? bookings.map((booking) => (
                   <div className="request-item" key={booking.id}>
@@ -1278,6 +1349,7 @@ function DashboardPage() {
               </div>
             </div>
           </section>
+          </>
         )}
       </main>
       <Toast message={toast} />
