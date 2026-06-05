@@ -650,7 +650,7 @@ function SalonsPage() {
       <main className="browse-page">
         <section className="directory-hero" aria-labelledby="directory-title">
           <p className="kicker">Sallonet dhe sherbimet</p>
-          <h1 id="directory-title">Gjej vendin e duhur per termin tend.</h1>
+          <h1 id="directory-title">Gjej vendin e duhur per kujdesin tend.</h1>
           <p>Filtro sipas sherbimit, qytetit, cmimit ose vleresimeve dhe dergo kerkesen direkt te salloni.</p>
         </section>
 
