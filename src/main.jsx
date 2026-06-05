@@ -226,7 +226,14 @@ async function uploadSalonImage(file, salonId) {
     cacheControl: "3600",
     upsert: true
   });
-  if (error) throw error;
+  if (error) {
+    const message = error.message?.toLowerCase().includes("bucket")
+      ? "Mungon bucket `salon-images` ne Supabase. Run `supabase/storage.sql` in Supabase SQL Editor."
+      : error.message?.toLowerCase().includes("image_url")
+        ? "Mungon kolona `image_url` ne tabelen salons. Run `supabase/database.sql` in Supabase SQL Editor."
+      : error.message;
+    throw new Error(message);
+  }
   const { data } = supabaseClient.storage.from("salon-images").getPublicUrl(path);
   return `${data.publicUrl}?v=${Date.now()}`;
 }
