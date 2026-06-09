@@ -829,6 +829,12 @@ function SignupPage() {
       showToast(salonError?.message || "Llogaria u krijua, por salloni nuk u ruajt.");
       return;
     }
+    const { error: linkError } = await supabaseClient.from("salon_users").insert({ user_id: authData.user.id, salon_id: salon.id, role: "owner" });
+    if (linkError) {
+      setLoading(false);
+      showToast(linkError.message);
+      return;
+    }
     try {
       if (imageFile) {
         const imageUrl = await uploadSalonImage(imageFile, salon.id);
@@ -839,12 +845,7 @@ function SignupPage() {
       showToast(`Llogaria u krijua, por fotoja nuk u ngarkua: ${error.message}`);
       return;
     }
-    const { error: linkError } = await supabaseClient.from("salon_users").insert({ user_id: authData.user.id, salon_id: salon.id, role: "owner" });
     setLoading(false);
-    if (linkError) {
-      showToast(linkError.message);
-      return;
-    }
     window.location.href = "/dashboard";
   }
 
